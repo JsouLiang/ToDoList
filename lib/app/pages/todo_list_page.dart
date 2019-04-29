@@ -1,51 +1,55 @@
-import 'package:flutter/material.dart';
+import 'dart:math';
 
-import '../components/profile_image_component.dart';
-import 'user_grid_list_page.dart';
+import 'package:flutter/material.dart';
 
 class TodoListPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => TodoListState();
 }
 
+const Color DOING_TASK_COLOR = Color.fromARGB(255, 80, 210, 194);
+const Color LATER_TASK_COLOR = Color.fromARGB(255, 255, 51, 102);
+
 class TodoListState extends State<TodoListPage> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    List<List<int>> datas = [
+      [1, 2],
+      [1, 2, 3, 4],
+      [1],
+      [1, 2]
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('ToDoList'),
+        title: Text('YOUR LIST'),
 //        leading: Text(''),
         actions: <Widget>[
-          ProfileImage(
-            NetworkImage(
-                'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3882265467,3924971696&fm=27&gp=0.jpg'),
-            Size(kBottomNavigationBarHeight, kBottomNavigationBarHeight),
-            onTapAction: () {
-              Route route =
-                  MaterialPageRoute(builder: (context) => UserGridListPage());
-              Navigator.push(context, route);
-            },
-          ),
-//          Container(
-//            padding: const EdgeInsets.all(8.0),
-//            child: IconButton(
-//              icon: Icon(Icons.account_circle),
-//              onPressed: () {
-//
-//              },
-//            ),
-//          )
+//          ProfileImage(
+//            NetworkImage(
+//                'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3882265467,3924971696&fm=27&gp=0.jpg'),
+//            Size(kBottomNavigationBarHeight, kBottomNavigationBarHeight),
+//            onTapAction: () {
+//              Route route =
+//                  MaterialPageRoute(builder: (context) => UserGridListPage());
+//              Navigator.push(context, route);
+//            },
+//              ),
         ],
       ),
       body: Center(
-        child: ListView.separated(
-            separatorBuilder: (BuildContext context, int index) {
-              return Divider();
-            },
-            itemCount: 50,
-            itemBuilder: (BuildContext context, int index) {
-              return _buildRow();
-            }),
+        child: Container(
+          decoration: BoxDecoration(color: Color.fromARGB(255, 248, 248, 248)),
+          child:
+              ListView.builder(itemBuilder: (BuildContext context, int index) {
+            return _buildRow(index);
+          }),
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: "Add",
@@ -56,73 +60,102 @@ class TodoListState extends State<TodoListPage> {
     );
   }
 
-  Widget _buildRow() {
+  Widget _avatarWidget(String assetURI) {
+    return Image.asset(
+      assetURI,
+      width: 25.0,
+      height: 25.0,
+    );
+  }
+
+  TextStyle _descTitleStyle() {
+    return TextStyle(
+        color: Color.fromARGB(255, 74, 74, 74),
+        fontSize: 14,
+        fontFamily: 'Avenir');
+  }
+
+  Widget _buildRow(int index) {
+    if (index == 50) return null;
+    int avatarCount = 4;
+    List<String> avatarURLs = [
+      'assets/images/avatar.png',
+      'assets/images/avatar.png',
+      'assets/images/avatar.png',
+      'assets/images/avatar.png'
+    ];
+    List<Widget> avatarWidgets = [];
+    // 0 <= maxCount <= 3
+    int maxCount = min(3, max(avatarURLs.length, 0));
+    for (int index = 0; index < maxCount; ++index) {
+      avatarWidgets.add(Padding(
+        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+        child: _avatarWidget(avatarURLs[index]),
+      ));
+    }
+
     Widget titleRow = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Checkbox(
-          value: false,
-          activeColor: Colors.red, //选中时的颜色
-          onChanged: (value) {
-            setState(() {
-//              _checkboxSelected=value;
-            });
-          },
+        Row(
+          children: <Widget>[
+            Image.asset(
+              'assets/images/group.png',
+              width: 25.0,
+              height: 25.0,
+            ),
+            Text(
+              '15pm - 20pm',
+              style: _descTitleStyle(),
+            )
+          ],
         ),
-        Expanded(
-          child: Text(
-            '任务名称',
-            style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18.0),
-          ),
+        Row(
+          children: <Widget>[
+            avatarCount > 3
+                ? Text(
+                    "+3",
+                    style: _descTitleStyle(),
+                  )
+                : null,
+            Row(children: avatarWidgets),
+          ],
         )
       ],
     );
 
     Widget timeRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-          child: Text('19-4-2'),
+        Text(
+          'Dinner with Andrea',
+          style: _descTitleStyle(),
         ),
-        // 这是评论数，评论数由一个评论图标和具体的评论数构成，所以是一个Row组件
         Container(
-          child: Row(
-            // 为了让评论数显示在最右侧，所以需要外面的Expanded和这里的MainAxisAlignment.end
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Icon(Icons.add_comment),
-              Text("2"),
-//              Image.asset('./images/ic_comment.png',
-//                  width: 16.0, height: 16.0),
-            ],
+          child: Image.asset(
+            'assets/images/Star.png',
+            width: 25.0,
+            height: 25.0,
           ),
-        ),
-        IconButton(
-          icon: Icon(Icons.star),
-          onPressed: () {},
         )
       ],
     );
 
-    return Row(
-      children: <Widget>[
-        Expanded(
-          flex: 1,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(8.0, 0, 8.0, 0),
-            child: Column(
-              children: <Widget>[
-                titleRow,
-                new Padding(
-                  padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-                  child: timeRow,
-                )
-              ],
-            ),
-          ),
-        )
-      ],
+    return Container(
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border(
+              left: BorderSide(width: 2, color: DOING_TASK_COLOR),
+            )),
+        height: 110.0,
+        margin: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[titleRow, timeRow],
+        ),
+      ),
     );
   }
 }
