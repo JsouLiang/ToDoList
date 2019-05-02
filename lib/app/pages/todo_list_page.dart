@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:todo_list/app/components/message_dialog.dart';
 
 class TodoListPage extends StatefulWidget {
   @override
@@ -53,7 +55,17 @@ class TodoListState extends State<TodoListPage> {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: "Add",
-        onPressed: () {},
+        onPressed: () {
+          showCupertinoDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return MessageDialog(
+                  taskName: "Name",
+                  taskTime: "Time",
+                  taskDesc: "Task Desc",
+                );
+              });
+        },
         tooltip: 'Add',
         child: Icon(Icons.add),
       ),
@@ -150,7 +162,7 @@ class TodoListState extends State<TodoListPage> {
             )),
         height: 110.0,
         margin: const EdgeInsets.all(10.0),
-        padding: const EdgeInsets.all(10.0),
+        padding: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[titleRow, timeRow],
