@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:todo_list/app/pages/add_task_page.dart';
 import 'package:todo_list/app/pages/todo_list_page.dart';
 
-const int ThemeColor = 0xFFFFFFFF;
+const int ThemeColor = 0xFF50D2C2;
 
 class MainHubPage extends StatefulWidget {
   @override
@@ -13,8 +14,6 @@ class MainHubPage extends StatefulWidget {
 
 class MainHubPageState extends State<MainHubPage>
     with SingleTickerProviderStateMixin {
-  TabController _tabController;
-
   static List tabData = [
     {'icon': new Icon(Icons.language)},
     {'icon': new Icon(Icons.extension)},
@@ -22,11 +21,19 @@ class MainHubPageState extends State<MainHubPage>
     {'icon': new Icon(Icons.import_contacts)}
   ];
 
+  final List<Widget> _childPages = [TodoListPage(), AddTaskPage()];
+
+  int _currentIndex = 0;
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _tabController = TabController(initialIndex: 0, length: 1, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -34,7 +41,7 @@ class MainHubPageState extends State<MainHubPage>
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Color(ThemeColor),
-        backgroundColor: Color(0xFFEFEFEF),
+        backgroundColor: Colors.red,
         accentColor: Color(0xFF888888),
         textTheme: TextTheme(
           //设置Material的默认字体样式
@@ -47,25 +54,46 @@ class MainHubPageState extends State<MainHubPage>
       ),
       home: Scaffold(
         backgroundColor: Colors.white,
-        body: TabBarView(controller: _tabController, children: [
-          TodoListPage(),
-        ]),
-        bottomNavigationBar: SafeArea(
-          child: Container(
-            height: 65.0,
-            child: TabBar(
-              controller: _tabController,
-              labelColor: Colors.deepPurpleAccent,
-              unselectedLabelColor: Colors.black26,
-              tabs: <Widget>[
-                Tab(
-                  icon: ImageIcon(AssetImage('assets/images/calendar.png')),
-                )
-              ],
-            ),
-          ),
+        body: _childPages[_currentIndex],
+        bottomNavigationBar: BottomNavigationBar(
+          onTap: _onTabChange,
+          currentIndex: _currentIndex,
+          items: [
+            BottomNavigationBarItem(
+                icon: ImageIcon(AssetImage('assets/images/calendar.png')),
+                title: Text('')),
+            BottomNavigationBarItem(
+                icon: ImageIcon(AssetImage('assets/images/add.png')),
+                title: Text('')),
+          ],
         ),
+//        bottomNavigationBar: SafeArea(
+//          child: Container(
+//            height: 65.0,
+//            child: TabBar(
+//              indicatorWeight: 0.0,
+//              controller: _tabController,
+////              unselectedLabelColor: Colors.black26,
+//              tabs: <Widget>[
+//                Tab(
+//                  icon: ImageIcon(AssetImage('assets/images/calendar.png')),
+//                ),
+//                Tab(
+//                  icon: ImageIcon(AssetImage('assets/images/add.png')),
+//                )
+//              ],
+//            ),
+//          ),
+//        ),
       ),
     );
+  }
+
+  void _onTabChange(int index) {
+    if (mounted) {
+      this.setState(() {
+        _currentIndex = index;
+      });
+    }
   }
 }

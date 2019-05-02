@@ -30,7 +30,11 @@ class ToDoListAppStatus extends State<ToDoListApp>
           size: 35.0,
         ),
       ),
-      home: Scaffold(backgroundColor: Colors.white, body: MainHubPage()),
+      home: Scaffold(
+        backgroundColor: Colors.white,
+        body: MainHubPage(),
+        resizeToAvoidBottomPadding: false,
+      ),
     );
   }
 }
