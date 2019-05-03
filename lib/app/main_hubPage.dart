@@ -41,16 +41,15 @@ class MainHubPageState extends State<MainHubPage>
     return MaterialApp(
       theme: ThemeData(
         primaryColor: Color(ThemeColor),
-        backgroundColor: Colors.red,
-        accentColor: Color(0xFF888888),
-        textTheme: TextTheme(
-          //设置Material的默认字体样式
-          body1: TextStyle(color: Color(0xFF888888), fontSize: 16.0),
-        ),
-        iconTheme: IconThemeData(
-          color: Color(ThemeColor),
-          size: 35.0,
-        ),
+        accentColor: Color(ThemeColor),
+//        textTheme: TextTheme(
+//          //设置Material的默认字体样式
+//          body1: TextStyle(color: Color(0xFF888888), fontSize: 16.0),
+//        ),
+//        iconTheme: IconThemeData(
+//          color: Color(ThemeColor),
+//          size: 35.0,
+//        ),
       ),
       home: Scaffold(
         backgroundColor: Colors.white,
