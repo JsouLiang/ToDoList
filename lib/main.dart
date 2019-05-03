@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todo_list/app/main_hubPage.dart';
+import 'package:todo_list/app/pages/login.dart';
 
 void main() => runApp(ToDoListApp());
 const int ThemeColor = 0xFF50D2C2;
@@ -33,7 +34,7 @@ class ToDoListAppStatus extends State<ToDoListApp>
       ),
       home: Scaffold(
         backgroundColor: Colors.white,
-        body: MainHubPage(),
+        body: LoginPage(),
         resizeToAvoidBottomPadding: false,
       ),
     );
