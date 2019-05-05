@@ -21,9 +21,17 @@ class MainHubPageState extends State<MainHubPage>
     {'icon': new Icon(Icons.import_contacts)}
   ];
 
-  final List<Widget> _childPages = [TodoListPage(), AddTaskPage()];
+  final List<Widget> _childPages = [
+    TodoListPage(),
+    TodoListPage(),
+    AddTaskPage(),
+    TodoListPage(),
+    TodoListPage(),
+  ];
 
   int _currentIndex = 0;
+  Color _activeTabColor = Color(0xff00ff00);
+  Color _inactiveTabColor = Colors.black;
 
   @override
   void initState() {
@@ -57,13 +65,17 @@ class MainHubPageState extends State<MainHubPage>
         bottomNavigationBar: BottomNavigationBar(
           onTap: _onTabChange,
           currentIndex: _currentIndex,
+          iconSize: 30,
+          type: BottomNavigationBarType.fixed,
           items: [
+            _buildBottomNavigationBarItem(imagePath: 'assets/images/calendar.png'),
+            _buildBottomNavigationBarItem(imagePath: 'assets/images/group.png'),
             BottomNavigationBarItem(
-                icon: ImageIcon(AssetImage('assets/images/calendar.png')),
-                title: Text('')),
-            BottomNavigationBarItem(
-                icon: ImageIcon(AssetImage('assets/images/add.png')),
-                title: Text('')),
+              icon: Image(image: AssetImage('assets/images/add.png'), width: 50, height: 50,), //ImageIcon(AssetImage('assets/images/add.png'), size: 60, color: _activeTabColor),
+              title: Text('')
+            ),
+            _buildBottomNavigationBarItem(imagePath: 'assets/images/lists.png'),
+            _buildBottomNavigationBarItem(imagePath: 'assets/images/completed.png'),
           ],
         ),
 //        bottomNavigationBar: SafeArea(
@@ -85,6 +97,14 @@ class MainHubPageState extends State<MainHubPage>
 //          ),
 //        ),
       ),
+    );
+  }
+
+  BottomNavigationBarItem _buildBottomNavigationBarItem({String title, @required String imagePath}) {
+    return BottomNavigationBarItem(
+      activeIcon: ImageIcon(AssetImage(imagePath), size: 24, color: _activeTabColor),
+      icon: ImageIcon(AssetImage(imagePath), size: 24, color: _inactiveTabColor),
+      title: Text(title ?? '')
     );
   }
 
