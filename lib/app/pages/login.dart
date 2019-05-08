@@ -20,82 +20,117 @@ class LoginState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final logo = CircleAvatar(
-      backgroundColor: Colors.transparent,
-      radius: 48.0,
-      child: Image.asset('images/flutter.png'),
-    );
-
-    final email = TextFormField(
-      keyboardType: TextInputType.emailAddress,
-      autofocus: false,
-      controller: emailController,
-      decoration: InputDecoration(
-        hintText: '邮箱',
-      ),
-    );
-
-    final password = TextFormField(
-      autofocus: false,
-      obscureText: true,
-      controller: passwordController,
-      decoration: InputDecoration(
-        hintText: '密码',
-      ),
-    );
-
-    final loginButton = FlatButton(
-      onPressed: () {
-        print(emailController.text);
-        print(passwordController.text);
-        // TODO: 网络请求
-        Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => TodoListPage()));
-      },
-      child: Column(
-        children: <Widget>[
-          Image.asset('images/register.png', width: 50, height: 50),
-          Text('登录', style: TextStyle(color: Colors.black)),
-        ],
-      ),
-    );
-
-    final registerButton = FlatButton(
-      onPressed: () => Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => RegisterPage())),
-      child: Column(
-        children: <Widget>[
-          Image.asset('images/login.png', width: 50, height: 50),
-          Text('注册', style: TextStyle(color: Colors.black)),
-        ],
-      ),
-    );
-
     return Scaffold(
       backgroundColor: Colors.white,
+      // TODO: 用 list view 替换
       body: Center(
-          child: Column(
+        child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          logo,
-          SizedBox(height: 10),
-          Text('TodoList', style: TextStyle(fontSize: 24)),
-          SizedBox(height: 40),
-          Padding(
-            padding: EdgeInsets.only(left: 24, right: 24),
-            child: email,
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(100),
+              child: CircleAvatar(
+                backgroundColor: Colors.transparent,
+                radius: 48.0,
+                child: Image.asset('assets/images/mark.png'),
+              ),
+            ),
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 24, right: 24),
-            child: password,
-          ),
-          SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              registerButton,
-              loginButton,
-            ],
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(height: 40),
+                Form(
+                  key: Key('login'),
+                  child: Column(
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(left: 24, right: 24),
+                        child: TextFormField(
+                          keyboardType: TextInputType.emailAddress,
+                          autofocus: false,
+                          controller: emailController,
+                          decoration: InputDecoration(
+                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black54)),
+                            labelText: '邮箱',
+                            hintText: '请输入邮箱',
+                            labelStyle: TextStyle(color: Colors.black54),
+                            hintStyle: TextStyle(color: Colors.black54),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 24, right: 24),
+                        child: Stack(
+                          children: <Widget>[
+                            TextFormField(
+                              autofocus: false,
+                              obscureText: true,
+                              controller: passwordController,
+                              decoration: InputDecoration(
+                                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black54)),
+                                hintText: '请输入密码',
+                                labelText: '密码',
+                                labelStyle: TextStyle(color: Colors.black54),
+                                hintStyle: TextStyle(color: Colors.black54),
+                              ),
+                            ),
+                            Positioned(
+                              right: 5,
+                              bottom: 0,
+                              child: FlatButton(
+                                onPressed: () => {},
+                                child: Text('忘记密码?'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 40),
+                Padding(
+                  padding: EdgeInsets.only(left: 24, right: 24),
+                  child: Container(
+                    height: 60,
+                    child: FlatButton(
+                      onPressed: () {
+                        print(emailController.text);
+                        print(passwordController.text);
+                        // TODO: 网络请求
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) => TodoListPage()));
+                      },
+                      color: Color.fromRGBO(69, 202, 181, 1),
+                      child: Center(
+                        child: Text('登录', style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                        )),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text('还没有账号？', style: TextStyle(color: Color.fromRGBO(184, 184, 187, 1))),
+                    GestureDetector(
+                      onTap: () => Navigator.of(context)
+                          .push(MaterialPageRoute(builder: (context) => RegisterPage())),
+                      child: Text('立即注册', style: TextStyle(
+                        color: Colors.black,
+                      )),
+                    ),
+                  ],
+                )
+              ],
+            ),
           )
         ],
       )),
