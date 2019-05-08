@@ -72,7 +72,6 @@ class RegisterState extends State<RegisterPage> {
       onPressed: () => {Navigator.of(context).pop()},
       child: Column(
         children: <Widget>[
-          Image.asset('images/x.png', width: 50, height: 50),
           Text('取消', style: TextStyle(color: Colors.black)),
         ],
       ),
@@ -85,7 +84,6 @@ class RegisterState extends State<RegisterPage> {
       },
       child: Column(
         children: <Widget>[
-          Image.asset('images/login.png', width: 50, height: 50),
           Text('注册', style: TextStyle(color: Colors.black)),
         ],
       ),
