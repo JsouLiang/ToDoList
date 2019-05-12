@@ -31,22 +31,24 @@ class RegisterState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final logo = CircleAvatar(
-      backgroundColor: Colors.transparent,
-      radius: 48.0,
-      backgroundImage: AssetImage('images/flutter.png'),
-    );
-
+//    _image = null;
     final avatar = FlatButton(
       onPressed: () => {_getImage()},
       child: CircleAvatar(
         backgroundColor: Colors.transparent,
         radius: 48,
         backgroundImage: _image == null
-            ? AssetImage(
-                'images/default.jpeg',
-              )
+            ? AssetImage('assets/images/defaultAvatar.png')
             : FileImage(_image),
+      ),
+    );
+
+    final userName = TextFormField(
+      keyboardType: TextInputType.emailAddress,
+      autofocus: false,
+      controller: emailController,
+      decoration: InputDecoration(
+        hintText: '用户名',
       ),
     );
 
@@ -68,58 +70,94 @@ class RegisterState extends State<RegisterPage> {
       ),
     );
 
-    final cancelButon = FlatButton(
-      onPressed: () => {Navigator.of(context).pop()},
-      child: Column(
-        children: <Widget>[
-          Text('取消', style: TextStyle(color: Colors.black)),
-        ],
-      ),
-    );
-
-    final registerButton = FlatButton(
+    final registerBtn = FlatButton(
       onPressed: () {
         Navigator.of(context)
             .push(MaterialPageRoute(builder: (context) => MainHubPage()));
       },
-      child: Column(
-        children: <Widget>[
-          Text('注册', style: TextStyle(color: Colors.black)),
-        ],
+      color: Color.fromRGBO(69, 202, 181, 1),
+      child: Center(
+        child: Text(
+          '注册',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+          ),
+        ),
       ),
     );
-
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Center(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(
+          '注册',
+          style: TextStyle(color: Colors.black),
+        ),
+      ),
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            logo,
-            SizedBox(height: 10),
-            Text('TodoList', style: TextStyle(fontSize: 24)),
-            SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text('头像:', style: TextStyle(fontSize: 20)),
-                avatar,
-              ],
+            Container(
+              height: 200,
+              alignment: Alignment.center,
+              child: Stack(
+                children: <Widget>[
+                  avatar,
+                  Positioned(
+                    right: 30,
+                    top: 5,
+                    child: Container(
+                      width: 20,
+                      height: 20,
+                      color: Color.fromRGBO(69, 202, 181, 1),
+                      alignment: Alignment.center,
+                      child: Text(
+                        '+',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  )
+                ],
+              ),
             ),
             Padding(
-              padding: EdgeInsets.only(left: 24, right: 24),
+              padding: EdgeInsets.fromLTRB(24, 10, 24, 10),
+              child: userName,
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, 10, 24, 10),
               child: email,
             ),
             Padding(
-              padding: EdgeInsets.only(left: 24, right: 24),
+              padding: EdgeInsets.fromLTRB(24, 10, 24, 10),
               child: password,
             ),
-            SizedBox(height: 24),
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, 10, 24, 10),
+              child: Container(
+                height: 60,
+                child: registerBtn,
+              ),
+            ),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                cancelButon,
-                registerButton,
+                Text('已有账号',
+                    style: TextStyle(color: Color.fromRGBO(184, 184, 187, 1))),
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                    child: Text(
+                      '登录',
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
               ],
             )
           ],
