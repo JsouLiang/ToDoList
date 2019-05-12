@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_list/app/main_hubPage.dart';
-import 'package:todo_list/app/pages/login.dart';
+import 'package:todo_list/app/pages/login_page.dart';
 
 void main() => runApp(ToDoListApp());
 const int ThemeColor = 0xFF50D2C2;

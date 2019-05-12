@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:todo_list/app/pages/todo_list_page.dart';
+import 'package:todo_list/app/main_hub_page.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -80,7 +80,7 @@ class RegisterState extends State<RegisterPage> {
     final registerButton = FlatButton(
       onPressed: () {
         Navigator.of(context)
-            .push(MaterialPageRoute(builder: (context) => TodoListPage()));
+            .push(MaterialPageRoute(builder: (context) => MainHubPage()));
       },
       child: Column(
         children: <Widget>[
@@ -92,38 +92,39 @@ class RegisterState extends State<RegisterPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          logo,
-          SizedBox(height: 10),
-          Text('TodoList', style: TextStyle(fontSize: 24)),
-          SizedBox(height: 40),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Text('头像:', style: TextStyle(fontSize: 20)),
-              avatar,
-            ],
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 24, right: 24),
-            child: email,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 24, right: 24),
-            child: password,
-          ),
-          SizedBox(height: 24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              cancelButon,
-              registerButton,
-            ],
-          )
-        ],
-      )),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            logo,
+            SizedBox(height: 10),
+            Text('TodoList', style: TextStyle(fontSize: 24)),
+            SizedBox(height: 40),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Text('头像:', style: TextStyle(fontSize: 20)),
+                avatar,
+              ],
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 24, right: 24),
+              child: email,
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 24, right: 24),
+              child: password,
+            ),
+            SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                cancelButon,
+                registerButton,
+              ],
+            )
+          ],
+        ),
+      ),
     );
   }
 }
