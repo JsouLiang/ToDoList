@@ -23,12 +23,15 @@ class LoginState extends State<LoginPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       // TODO: 用 list view 替换
-      body: Center(
-        child: Column(
+      body: SingleChildScrollView(
+          child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Expanded(
+          Flexible(
+            flex: 1,
+            fit: FlexFit.loose,
             child: Padding(
               padding: EdgeInsets.all(100),
               child: CircleAvatar(
@@ -38,7 +41,9 @@ class LoginState extends State<LoginPage> {
               ),
             ),
           ),
-          Expanded(
+          Flexible(
+            flex: 1,
+            fit: FlexFit.loose,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -54,7 +59,8 @@ class LoginState extends State<LoginPage> {
                           autofocus: false,
                           controller: emailController,
                           decoration: InputDecoration(
-                            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black54)),
+                            focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.black54)),
                             labelText: '邮箱',
                             hintText: '请输入邮箱',
                             labelStyle: TextStyle(color: Colors.black54),
@@ -71,7 +77,9 @@ class LoginState extends State<LoginPage> {
                               obscureText: true,
                               controller: passwordController,
                               decoration: InputDecoration(
-                                focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.black54)),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.black54)),
                                 hintText: '请输入密码',
                                 labelText: '密码',
                                 labelStyle: TextStyle(color: Colors.black54),
@@ -102,15 +110,16 @@ class LoginState extends State<LoginPage> {
                         print(emailController.text);
                         print(passwordController.text);
                         // TODO: 网络请求
-                        Navigator.of(context)
-                            .push(MaterialPageRoute(builder: (context) => TodoListPage()));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => TodoListPage()));
                       },
                       color: Color.fromRGBO(69, 202, 181, 1),
                       child: Center(
-                        child: Text('登录', style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        )),
+                        child: Text('登录',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                            )),
                       ),
                     ),
                   ),
@@ -119,13 +128,16 @@ class LoginState extends State<LoginPage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text('还没有账号？', style: TextStyle(color: Color.fromRGBO(184, 184, 187, 1))),
+                    Text('还没有账号？',
+                        style:
+                            TextStyle(color: Color.fromRGBO(184, 184, 187, 1))),
                     GestureDetector(
-                      onTap: () => Navigator.of(context)
-                          .push(MaterialPageRoute(builder: (context) => RegisterPage())),
-                      child: Text('立即注册', style: TextStyle(
-                        color: Colors.black,
-                      )),
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => RegisterPage())),
+                      child: Text('立即注册',
+                          style: TextStyle(
+                            color: Colors.black,
+                          )),
                     ),
                   ],
                 )
