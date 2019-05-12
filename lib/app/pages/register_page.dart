@@ -106,16 +106,24 @@ class RegisterState extends State<RegisterPage> {
                 children: <Widget>[
                   avatar,
                   Positioned(
-                    right: 30,
+                    right: 20,
                     top: 5,
-                    child: Container(
-                      width: 20,
-                      height: 20,
-                      color: Color.fromRGBO(69, 202, 181, 1),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '+',
-                        style: TextStyle(color: Colors.white),
+                    child: GestureDetector(
+                      onTap: () => _getImage(),
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            color: Color.fromARGB(255, 80, 210, 194)),
+                        width: 30,
+                        height: 30,
+                        alignment: Alignment.center,
+                        child: Text(
+                          '+',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
                   )
