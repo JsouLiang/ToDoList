@@ -13,6 +13,7 @@ class RegisterState extends State<RegisterPage> {
   File _image;
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final userNameController = TextEditingController();
 
   @override
   void dispose() {
@@ -46,7 +47,7 @@ class RegisterState extends State<RegisterPage> {
     final userName = TextFormField(
       keyboardType: TextInputType.emailAddress,
       autofocus: false,
-      controller: emailController,
+      controller: userNameController,
       decoration: InputDecoration(
         hintText: '用户名',
       ),

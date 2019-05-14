@@ -13,10 +13,14 @@ const Color DOING_TASK_COLOR = Color.fromARGB(255, 80, 210, 194);
 const Color LATER_TASK_COLOR = Color.fromARGB(255, 255, 51, 102);
 
 class TodoListState extends State<TodoListPage> {
+  List<String> taskIds = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+  Set<String> selectedTask = Set();
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
     List<List<int>> datas = [
       [1, 2],
       [1, 2, 3, 4],
@@ -49,7 +53,7 @@ class TodoListState extends State<TodoListPage> {
           decoration: BoxDecoration(color: Color.fromARGB(255, 248, 248, 248)),
           child:
               ListView.builder(itemBuilder: (BuildContext context, int index) {
-            return _buildRow(index);
+            return _buildRow(index, taskIds[index]);
           }),
         ),
       ),
@@ -87,8 +91,10 @@ class TodoListState extends State<TodoListPage> {
         fontFamily: 'Avenir');
   }
 
-  Widget _buildRow(int index) {
+  Widget _buildRow(int index, String key) {
     if (index == 50) return null;
+    bool selected = selectedTask.contains(key);
+
     int avatarCount = 4;
     List<String> avatarURLs = [
       'assets/images/avatar.png',
@@ -136,6 +142,16 @@ class TodoListState extends State<TodoListPage> {
       ],
     );
 
+    void _star() {
+      setState(() {
+        if (selectedTask.contains(key)) {
+          selectedTask.remove(key);
+        } else {
+          selectedTask.add(key);
+        }
+      });
+    }
+
     Widget timeRow = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
@@ -143,17 +159,26 @@ class TodoListState extends State<TodoListPage> {
           'Dinner with Andrea',
           style: _descTitleStyle(),
         ),
-        Container(
-          child: Image.asset(
-            'assets/images/Star.png',
-            width: 25.0,
-            height: 25.0,
+        GestureDetector(
+          onTap: _star,
+          child: Container(
+            child: selected
+                ? Image.asset(
+                    'assets/images/Star.png',
+                    width: 25.0,
+                    height: 25.0,
+                  )
+                : Icon(
+                    Icons.star_border,
+                    size: 25.0,
+                  ),
           ),
         )
       ],
     );
 
     return Container(
+      key: Key(key),
       child: Container(
         decoration: BoxDecoration(
             color: Colors.white,
