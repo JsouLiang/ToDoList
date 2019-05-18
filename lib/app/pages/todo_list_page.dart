@@ -1,8 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_list/app/components/message_dialog.dart';
+import 'package:todo_list/app/components/task_item.dart';
+import 'package:todo_list/app/data/task_list_page_model.dart';
+import 'package:todo_list/app/data/todo_entry.dart';
 
 class TodoListPage extends StatefulWidget {
   @override
@@ -13,20 +14,31 @@ const Color DOING_TASK_COLOR = Color.fromARGB(255, 80, 210, 194);
 const Color LATER_TASK_COLOR = Color.fromARGB(255, 255, 51, 102);
 
 class TodoListState extends State<TodoListPage> {
-  List<String> taskIds = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"];
+  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+  TaskListPageModel<TodoEntry> _list;
+
+  List<TodoEntry> tasks = [
+    TodoEntry(title: "第一个任务", description: "第一个任务描述"),
+    TodoEntry(title: "第二个任务", description: "第二个任务描述"),
+    TodoEntry(title: "第三个任务", description: "第三个任务描述"),
+    TodoEntry(title: "第四个任务", description: "第四个任务描述"),
+    TodoEntry(title: "第五个任务", description: "第五个任务描述"),
+    TodoEntry(title: "第六个任务", description: "第六个任务描述"),
+    TodoEntry(title: "第七个任务", description: "第七个任务描述"),
+    TodoEntry(title: "第八个任务", description: "第八个任务描述"),
+    TodoEntry(title: "第九个任务", description: "第九个任务描述"),
+    TodoEntry(title: "第十个任务", description: "第十个任务描述"),
+  ];
   Set<String> selectedTask = Set();
+
+  int _lastStarIndex = 0;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
-    List<List<int>> datas = [
-      [1, 2],
-      [1, 2, 3, 4],
-      [1],
-      [1, 2]
-    ];
+    _list = TaskListPageModel(
+        listKey: _listKey, initialItems: tasks, removedItemBuilder: _buildRow);
   }
 
   @override
@@ -34,29 +46,14 @@ class TodoListState extends State<TodoListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('YOUR LIST'),
-//        leading: Text(''),
-        actions: <Widget>[
-//          ProfileImage(
-//            NetworkImage(
-//                'https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3882265467,3924971696&fm=27&gp=0.jpg'),
-//            Size(kBottomNavigationBarHeight, kBottomNavigationBarHeight),
-//            onTapAction: () {
-//              Route route =
-//                  MaterialPageRoute(builder: (context) => UserGridListPage());
-//              Navigator.push(context, route);
-//            },
-//              ),
-        ],
+        actions: <Widget>[],
       ),
-      body: Center(
-        child: Container(
-          decoration: BoxDecoration(color: Color.fromARGB(255, 248, 248, 248)),
-          child:
-              ListView.builder(itemBuilder: (BuildContext context, int index) {
-            return _buildRow(index, taskIds[index]);
+      body: AnimatedList(
+          key: _listKey,
+          initialItemCount: _list.length,
+          itemBuilder: (context, index, animation) {
+            return _buildRow(_list[index], context, animation);
           }),
-        ),
-      ),
       floatingActionButton: FloatingActionButton(
         heroTag: "Add",
         onPressed: () {
@@ -76,123 +73,49 @@ class TodoListState extends State<TodoListPage> {
     );
   }
 
-  Widget _avatarWidget(String assetURI) {
-    return Image.asset(
-      assetURI,
-      width: 25.0,
-      height: 25.0,
-    );
-  }
-
-  TextStyle _descTitleStyle() {
-    return TextStyle(
-        color: Color.fromARGB(255, 74, 74, 74),
-        fontSize: 14,
-        fontFamily: 'Avenir');
-  }
-
-  Widget _buildRow(int index, String key) {
-    if (index == 50) return null;
-    bool selected = selectedTask.contains(key);
-
-    int avatarCount = 4;
-    List<String> avatarURLs = [
-      'assets/images/avatar.png',
-      'assets/images/avatar.png',
-      'assets/images/avatar.png',
-      'assets/images/avatar.png'
-    ];
-    List<Widget> avatarWidgets = [];
-    // 0 <= maxCount <= 3
-    int maxCount = min(3, max(avatarURLs.length, 0));
-    for (int index = 0; index < maxCount; ++index) {
-      avatarWidgets.add(Padding(
-        padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
-        child: _avatarWidget(avatarURLs[index]),
-      ));
+  void _finished(TodoEntry task) {
+    task.finished = !task.finished;
+    if (task.finished) {
+      _list.remove(task);
+      _list.insert(_list.length, task);
     }
 
-    Widget titleRow = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Image.asset(
-              'assets/images/group.png',
-              width: 25.0,
-              height: 25.0,
-            ),
-            Text(
-              '15pm - 20pm',
-              style: _descTitleStyle(),
-            )
-          ],
-        ),
-        Row(
-          children: <Widget>[
-            avatarCount > 3
-                ? Text(
-                    "+3",
-                    style: _descTitleStyle(),
-                  )
-                : null,
-            Row(children: avatarWidgets),
-          ],
-        )
-      ],
-    );
+    setState(() {
+//      task.finished = !task.finished;
+//      if (task.finished) {
+//        tasks.remove(task);
+//        tasks.add(task);
+//      }
+    });
+  }
 
-    void _star() {
-      setState(() {
-        if (selectedTask.contains(key)) {
-          selectedTask.remove(key);
-        } else {
-          selectedTask.add(key);
-        }
-      });
+  void _star(TodoEntry task) {
+    task.import = !task.import;
+    _list.remove(task);
+    if (task.import) {
+      _list.insert(0, task);
+      _lastStarIndex++;
+    } else {
+      _list.insert(--_lastStarIndex, task);
     }
 
-    Widget timeRow = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Text(
-          'Dinner with Andrea',
-          style: _descTitleStyle(),
-        ),
-        GestureDetector(
-          onTap: _star,
-          child: Container(
-            child: selected
-                ? Image.asset(
-                    'assets/images/Star.png',
-                    width: 25.0,
-                    height: 25.0,
-                  )
-                : Icon(
-                    Icons.star_border,
-                    size: 25.0,
-                  ),
-          ),
-        )
-      ],
-    );
+    setState(() {
+//      tasks.remove(task);
+//      if (task.import) {
+//        tasks.insert(0, task);
+//        _lastStarIndex++;
+//      } else {
+//        tasks.insert(--_lastStarIndex, task);
+//      }
+    });
+  }
 
-    return Container(
-      key: Key(key),
-      child: Container(
-        decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border(
-              left: BorderSide(width: 2, color: DOING_TASK_COLOR),
-            )),
-        height: 110.0,
-        margin: const EdgeInsets.all(10.0),
-        padding: const EdgeInsets.fromLTRB(10.0, 20.0, 10.0, 20.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[titleRow, timeRow],
-        ),
-      ),
+  Widget _buildRow(TodoEntry task, BuildContext context, Animation animation) {
+    return TaskItem(
+      task: task,
+      animation: animation,
+      onFinished: _finished,
+      onImported: _star,
     );
   }
 }

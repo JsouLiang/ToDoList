@@ -1,3 +1,4 @@
+import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_list/app/pages/register_page.dart';
 import 'package:todo_list/app/pages/todo_list_page.dart';
@@ -7,14 +8,30 @@ class LoginPage extends StatefulWidget {
   State<StatefulWidget> createState() => LoginState();
 }
 
-class LoginState extends State<LoginPage> {
+class LoginState extends State<LoginPage> with SingleTickerProviderStateMixin {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+
+  Animation<double> _animation;
+  AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+        duration: const Duration(milliseconds: 2000), vsync: this);
+    _animation = Tween(begin: 0.0, end: 300.0).animate(_animationController)
+      ..addListener(() {
+        setState(() {});
+      });
+    _animationController.forward();
+  }
 
   @override
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -37,7 +54,11 @@ class LoginState extends State<LoginPage> {
                 child: CircleAvatar(
                   backgroundColor: Colors.transparent,
                   radius: 48.0,
-                  child: Image.asset('assets/images/mark.png'),
+                  child: Image.asset(
+                    'assets/images/mark.png',
+                    width: _animation.value,
+                    height: _animation.value,
+                  ),
                 ),
               ),
             ),
