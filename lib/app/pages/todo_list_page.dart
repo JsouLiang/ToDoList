@@ -50,9 +50,12 @@ class TodoListState extends State<TodoListPage> {
       ),
       body: AnimatedList(
           key: _listKey,
-          initialItemCount: _list.length,
+          initialItemCount: tasks.length,
           itemBuilder: (context, index, animation) {
-            return _buildRow(_list[index], context, animation);
+            if (index < 0 || index >= tasks.length) {
+              return null;
+            }
+            return _buildRow(index, context, animation);
           }),
       floatingActionButton: FloatingActionButton(
         heroTag: "Add",
@@ -74,10 +77,16 @@ class TodoListState extends State<TodoListPage> {
   }
 
   void _finished(TodoEntry task) {
+//    task.finished = !task.finished;
+//    if (task.finished) {
+//      _list.remove(task);
+//      _list.insert(_list.length, task);
+//    }
+
     task.finished = !task.finished;
     if (task.finished) {
-      _list.remove(task);
-      _list.insert(_list.length, task);
+      animatedRemove(task);
+      animatedInsert(task, index: tasks.length);
     }
 
     setState(() {
@@ -89,33 +98,63 @@ class TodoListState extends State<TodoListPage> {
     });
   }
 
+  AnimatedListState get _animatedList => _listKey.currentState;
+
   void _star(TodoEntry task) {
+//    task.import = !task.import;
+//    _list.remove(task);
+//    if (task.import) {
+//      _list.insert(0, task);
+//      _lastStarIndex++;
+//    } else {
+//      _list.insert(--_lastStarIndex, task);
+//    }
     task.import = !task.import;
-    _list.remove(task);
+    // 先移除
+    animatedRemove(task);
     if (task.import) {
-      _list.insert(0, task);
+      animatedInsert(task);
       _lastStarIndex++;
     } else {
-      _list.insert(--_lastStarIndex, task);
+      final index = --_lastStarIndex;
+      animatedInsert(task, index: index);
     }
+  }
 
-    setState(() {
-//      tasks.remove(task);
-//      if (task.import) {
-//        tasks.insert(0, task);
-//        _lastStarIndex++;
-//      } else {
-//        tasks.insert(--_lastStarIndex, task);
-//      }
+  void _delete(TodoEntry task) {
+    final index = tasks.indexOf(task);
+    tasks.remove(task);
+    setState(() {});
+//    _animatedList.removeItem(index);
+    animatedRemove(task);
+  }
+
+  void animatedInsert(TodoEntry task, {int index = 0}) {
+    tasks.insert(index, task);
+    _animatedList.insertItem(index);
+  }
+
+  void animatedRemove(TodoEntry task) {
+    final int index = tasks.indexOf(task);
+    tasks.remove(task);
+    _animatedList.removeItem(index, (context, animation) {
+      return _buildRow(index, context, animation, canOption: false);
     });
   }
 
-  Widget _buildRow(TodoEntry task, BuildContext context, Animation animation) {
+  Widget _buildRow(int index, BuildContext context, Animation animation,
+      {bool canOption = true}) {
+    if (index >= tasks.length) {
+      return null;
+    }
+    TodoEntry task = tasks[index];
     return TaskItem(
       task: task,
       animation: animation,
       onFinished: _finished,
       onImported: _star,
+      onDelete: _delete,
+      canOption: canOption,
     );
   }
 }
