@@ -1,201 +1,182 @@
-import 'dart:async';
-
-import 'package:email_validator/email_validator.dart';
-import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_list/app/pages/register_page.dart';
-import 'package:todo_list/app/pages/todo_list_page.dart';
+import 'package:http/http.dart';
+import 'dart:convert';
 
 class LoginPage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => LoginState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class LoginState extends State<LoginPage> with SingleTickerProviderStateMixin {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final emailFocusNode = FocusNode();
-  StreamController<String> _inputStream = StreamController.broadcast();
-  StreamController<String> _inputPsdStream = StreamController.broadcast();
+class _LoginPageState extends State<LoginPage> {
+  bool canLogin;
 
-  Stream<bool> get outputIsButtonEnabled => _inputStream.stream.map((email) {
-        return EmailValidator.validate(email);
-      });
-  Stream<String> get outputErrorText => outputIsButtonEnabled.map((isEnabled) =>
-      emailFocusNode.hasFocus ? null : isEnabled ? null : "Invalid Email");
-
-  Animation<double> _animation;
-  AnimationController _animationController;
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _inputPsdStream.stream.take(3);
-
-    emailController
-        .addListener(() => _inputStream.sink.add(emailController.text));
-    _animationController = AnimationController(
-        duration: const Duration(milliseconds: 2000), vsync: this);
-    _animation = Tween(begin: 0.0, end: 300.0).animate(_animationController)
-      ..addListener(() {
-        setState(() {});
-      });
-    _animationController.forward();
+    canLogin = false;
   }
 
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    _animationController.dispose();
-    super.dispose();
+  void _checkInputValid(String _) {
+    bool isInputValid = _emailController.text.contains('@') && _passwordController.text.length >= 6;
+    if (isInputValid == canLogin) {
+      return;
+    }
+    setState(() {
+      canLogin = isInputValid;
+    });
+  }
+
+  _login() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                CircularProgressIndicator(),
+                Text('请求中...'),
+              ],
+            ),
+          ),
+        );
+      }
+    );
+    Response response = await post('http://10.0.2.2:8989/login', body: JsonEncoder().convert({
+      'email': email,
+      'password': password,
+    }), headers: {
+      'Content-Type': 'application/json',
+    });
+    Map<String, dynamic> body = JsonDecoder().convert(response.body);
+    print(body);
+    Navigator.of(context).pop();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text('服务器返回信息'),
+        content: Text(body['error'].isEmpty ? '登录成功' : '登录失败，服务器信息为：${body['error'] }'),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('确定'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          )
+        ],
+      )
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      // TODO: 用 list view 替换
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Flexible(
-              flex: 1,
-              fit: FlexFit.loose,
-              child: Padding(
-                padding: EdgeInsets.all(100),
-                child: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  radius: 48.0,
-                  child: Image.asset(
-                    'assets/images/mark.png',
-                    width: _animation.value,
-                    height: _animation.value,
-                  ),
+    FocusNode emailFocusNode = FocusNode();
+    FocusNode passwordFocusNode = FocusNode();
+    return GestureDetector(
+      onTap: () {
+        emailFocusNode.unfocus();
+        passwordFocusNode.unfocus();
+      },
+      child: SingleChildScrollView(
+        child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height,
+        ),
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: Container(
+                  child: Center(
+                    child: FractionallySizedBox(
+                      child: Image.asset('assets/images/mark.png'),
+                      widthFactor: 0.4,
+                      heightFactor: 0.4,
+                    )
+                  )
                 ),
               ),
-            ),
-            Flexible(
-              flex: 1,
-              fit: FlexFit.loose,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(height: 40),
-                  Form(
-                    key: Key('login'),
-                    child: Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(left: 24, right: 24),
-                          child: StreamBuilder<String>(
-                              stream: outputErrorText,
-                              initialData: "",
-                              builder: (context, snapShot) {
-                                final errorText = (snapShot.data == null ||
-                                        snapShot.data == "")
-                                    ? null
-                                    : snapShot.data;
-                                return TextFormField(
-                                  focusNode: emailFocusNode,
-                                  keyboardType: TextInputType.emailAddress,
-                                  autofocus: false,
-                                  controller: emailController,
-                                  decoration: InputDecoration(
-                                    errorText: errorText,
-                                    focusedBorder: UnderlineInputBorder(
-                                        borderSide:
-                                            BorderSide(color: Colors.black54)),
-                                    labelText: '邮箱',
-                                    hintText: '请输入邮箱',
-                                    labelStyle:
-                                        TextStyle(color: Colors.black54),
-                                    hintStyle: TextStyle(color: Colors.black54),
-                                  ),
-                                );
-                              }),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 24, right: 24),
-                          child: Stack(
-                            children: <Widget>[
-                              TextFormField(
-                                autofocus: false,
-                                obscureText: true,
-                                controller: passwordController,
-                                decoration: InputDecoration(
-                                  focusedBorder: UnderlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.black54)),
-                                  hintText: '请输入密码',
-                                  labelText: '密码',
-                                  labelStyle: TextStyle(color: Colors.black54),
-                                  hintStyle: TextStyle(color: Colors.black54),
+              Expanded(
+                child: Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(left: 24, right: 24, bottom: 12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            TextField(
+                              decoration: InputDecoration(
+                                hintText: '请输入邮箱',
+                                labelText: '邮箱',
+                              ),
+                              focusNode: emailFocusNode,
+                              keyboardType: TextInputType.emailAddress,
+                              textInputAction: TextInputAction.next,
+                              onSubmitted: (String value) {
+                                FocusScope.of(context).requestFocus(passwordFocusNode);
+                              },
+                              onChanged: _checkInputValid,
+                              controller: _emailController,
+                            ),
+                            TextField(
+                              decoration: InputDecoration(
+                                hintText: '请输入六位以上的密码',
+                                labelText: '密码',
+                                suffixIcon: FlatButton(
+                                  child: Text('忘记密码？'),
+                                  onPressed: () {},
                                 ),
                               ),
-                              Positioned(
-                                right: 5,
-                                bottom: 0,
-                                child: FlatButton(
-                                  onPressed: () => {},
-                                  child: Text('忘记密码?'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 40),
-                  Padding(
-                    padding: EdgeInsets.only(left: 24, right: 24),
-                    child: Container(
-                      height: 60,
-                      child: FlatButton(
-                        onPressed: () {
-                          print(emailController.text);
-                          print(passwordController.text);
-                          // TODO: 网络请求
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => TodoListPage()));
-                        },
-                        color: Color.fromRGBO(69, 202, 181, 1),
-                        child: Center(
-                          child: Text('登录',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                              )),
+                              obscureText: true,
+                              focusNode: passwordFocusNode,
+                              textInputAction: TextInputAction.done,
+                              onChanged: _checkInputValid,
+                              controller: _passwordController,
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text('还没有账号？',
-                          style: TextStyle(
-                              color: Color.fromRGBO(184, 184, 187, 1))),
-                      GestureDetector(
-                        onTap: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (context) => RegisterPage())),
-                        child: Text('立即注册',
+                      Padding(
+                        padding: EdgeInsets.only(left: 24, right: 24, top: 12, bottom: 12),
+                        child: FlatButton(
+                          onPressed: canLogin ? _login : null,
+                          color: Color.fromRGBO(69, 202, 181, 1),
+                          disabledColor: Color.fromRGBO(69, 202, 160, 0.5),
+                          child: Text(
+                            '登录',
                             style: TextStyle(
-                              color: Colors.black,
-                            )),
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 24, right: 24, top: 12, bottom: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text('没有账号？'),
+                            InkWell(
+                              child: Text('立即注册'),
+                              onTap: () {},
+                            )
+                          ],
+                        )
                       ),
                     ],
                   )
-                ],
+                ),
               ),
-            )
-          ],
+            ],
+          ),
         ),
       ),
     );
