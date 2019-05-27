@@ -43,6 +43,8 @@ class TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
     _controller = AnimationController(
         duration: const Duration(milliseconds: 246), vsync: this);
 
+    setState(() {});
+
     _animation = CurvedAnimation(
       parent: _controller,
       curve: new Interval(0.0, 1.0, curve: Curves.linear),

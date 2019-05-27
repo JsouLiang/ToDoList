@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
 import 'package:todo_list/app/pages/register_page.dart';
@@ -11,6 +14,15 @@ class LoginPage extends StatefulWidget {
 class LoginState extends State<LoginPage> with SingleTickerProviderStateMixin {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final emailFocusNode = FocusNode();
+  StreamController<String> _inputStream = StreamController.broadcast();
+  StreamController<String> _inputPsdStream = StreamController.broadcast();
+
+  Stream<bool> get outputIsButtonEnabled => _inputStream.stream.map((email) {
+        return EmailValidator.validate(email);
+      });
+  Stream<String> get outputErrorText => outputIsButtonEnabled.map((isEnabled) =>
+      emailFocusNode.hasFocus ? null : isEnabled ? null : "Invalid Email");
 
   Animation<double> _animation;
   AnimationController _animationController;
@@ -18,6 +30,10 @@ class LoginState extends State<LoginPage> with SingleTickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _inputPsdStream.stream.take(3);
+
+    emailController
+        .addListener(() => _inputStream.sink.add(emailController.text));
     _animationController = AnimationController(
         duration: const Duration(milliseconds: 2000), vsync: this);
     _animation = Tween(begin: 0.0, end: 300.0).animate(_animationController)
@@ -75,20 +91,32 @@ class LoginState extends State<LoginPage> with SingleTickerProviderStateMixin {
                       children: <Widget>[
                         Padding(
                           padding: EdgeInsets.only(left: 24, right: 24),
-                          child: TextFormField(
-                            keyboardType: TextInputType.emailAddress,
-                            autofocus: false,
-                            controller: emailController,
-                            decoration: InputDecoration(
-                              focusedBorder: UnderlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.black54)),
-                              labelText: '邮箱',
-                              hintText: '请输入邮箱',
-                              labelStyle: TextStyle(color: Colors.black54),
-                              hintStyle: TextStyle(color: Colors.black54),
-                            ),
-                          ),
+                          child: StreamBuilder<String>(
+                              stream: outputErrorText,
+                              initialData: "",
+                              builder: (context, snapShot) {
+                                final errorText = (snapShot.data == null ||
+                                        snapShot.data == "")
+                                    ? null
+                                    : snapShot.data;
+                                return TextFormField(
+                                  focusNode: emailFocusNode,
+                                  keyboardType: TextInputType.emailAddress,
+                                  autofocus: false,
+                                  controller: emailController,
+                                  decoration: InputDecoration(
+                                    errorText: errorText,
+                                    focusedBorder: UnderlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.black54)),
+                                    labelText: '邮箱',
+                                    hintText: '请输入邮箱',
+                                    labelStyle:
+                                        TextStyle(color: Colors.black54),
+                                    hintStyle: TextStyle(color: Colors.black54),
+                                  ),
+                                );
+                              }),
                         ),
                         Padding(
                           padding: EdgeInsets.only(left: 24, right: 24),

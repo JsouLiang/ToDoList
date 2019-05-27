@@ -36,7 +36,7 @@ class TodoListState extends State<TodoListPage> {
   @override
   void initState() {
     super.initState();
-
+    Future.delayed(Duration(seconds: 2), () {});
     _list = TaskListPageModel(
         listKey: _listKey, initialItems: tasks, removedItemBuilder: _buildRow);
   }
@@ -101,23 +101,13 @@ class TodoListState extends State<TodoListPage> {
   AnimatedListState get _animatedList => _listKey.currentState;
 
   void _star(TodoEntry task) {
-//    task.import = !task.import;
-//    _list.remove(task);
-//    if (task.import) {
-//      _list.insert(0, task);
-//      _lastStarIndex++;
-//    } else {
-//      _list.insert(--_lastStarIndex, task);
-//    }
     task.import = !task.import;
-    // 先移除
-    animatedRemove(task);
+    _list.remove(task);
     if (task.import) {
-      animatedInsert(task);
+      _list.insert(0, task);
       _lastStarIndex++;
     } else {
-      final index = --_lastStarIndex;
-      animatedInsert(task, index: index);
+      _list.insert(--_lastStarIndex, task);
     }
   }
 
