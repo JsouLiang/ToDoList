@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_list/app/pages/login_page.dart';
+import 'package:todo_list/app/main_hub_page.dart';
 
 void main() => runApp(ToDoListApp());
 const int ThemeColor = 0xFF50D2C2;
@@ -12,8 +12,7 @@ class ToDoListApp extends StatefulWidget {
   }
 }
 
-class ToDoListAppStatus extends State<ToDoListApp>
-    with SingleTickerProviderStateMixin {
+class ToDoListAppStatus extends State<ToDoListApp> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -33,7 +32,7 @@ class ToDoListAppStatus extends State<ToDoListApp>
       ),
       home: Scaffold(
         backgroundColor: Colors.white,
-        body: LoginPage(),
+        body: MainHubPage(),
         resizeToAvoidBottomPadding: false,
       ),
     );

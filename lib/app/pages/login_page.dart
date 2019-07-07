@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login_operation.dart';
 
@@ -12,21 +13,30 @@ class _LoginPageState extends State<LoginPage> {
   bool canLogin;
   LoginBloc _loginBloc;
   TokenVerifyBloc _tokenVerifyBloc;
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _emailController;
+  TextEditingController _passwordController;
 
   @override
   void initState() {
     super.initState();
     canLogin = false;
+//    String email = await _savedEmail();
+//    String password;
+//    if (email != null) {
+//      password = await _savedPassword(email);
+//      _emailController = TextEditingController.fromValue(TextEditingValue(text: email));
+//      _passwordController = TextEditingController.fromValue(TextEditingValue(text: password));
+//    } else {
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+//    }
+
     _tokenVerifyBloc = TokenVerifyBloc();
-    _loginBloc = LoginBloc(
-        loginOperation: LoginOperation(), tokenVerifyBloc: _tokenVerifyBloc);
+    _loginBloc = LoginBloc(loginOperation: LoginOperation(), tokenVerifyBloc: _tokenVerifyBloc);
   }
 
   void _checkInputValid(String _) {
-    bool isInputValid = _emailController.text.contains('@') &&
-        _passwordController.text.length >= 6;
+    bool isInputValid = _emailController.text.contains('@') && _passwordController.text.length >= 6;
     if (isInputValid == canLogin) {
       return;
     }
@@ -36,8 +46,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   _login() {
-    _loginBloc.dispatch(LoginButtonPressEvent(
-        username: _emailController.text, password: _passwordController.text));
+    _loginBloc.dispatch(LoginButtonPressEvent(username: _emailController.text, password: _passwordController.text));
   }
 
 //  _login() async {
@@ -97,109 +106,108 @@ class _LoginPageState extends State<LoginPage> {
       bloc: _tokenVerifyBloc,
       builder: (context, state) {
         if (state is LoginSuccess) {
-          WidgetsBinding.instance
-              .addPostFrameCallback((_) => this.showLoginResultDialog());
+          WidgetsBinding.instance.addPostFrameCallback((_) => this.showLoginResultDialog());
         } else if (state is LoginFailure) {
-          WidgetsBinding.instance.addPostFrameCallback(
-              (_) => this.showLoginResultDialog(error: "密码错误"));
+          WidgetsBinding.instance.addPostFrameCallback((_) => this.showLoginResultDialog(error: "密码错误"));
         }
-        return GestureDetector(
-          onTap: () {
-            emailFocusNode.unfocus();
-            passwordFocusNode.unfocus();
-          },
-          child: SingleChildScrollView(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height,
-              ),
-              child: Column(
-                children: <Widget>[
-                  Expanded(
-                    child: Container(
-                        child: Center(
-                            child: FractionallySizedBox(
-                      child: Image.asset('assets/images/mark.png'),
-                      widthFactor: 0.4,
-                      heightFactor: 0.4,
-                    ))),
-                  ),
-                  Expanded(
-                    child: Container(
-                        child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        Padding(
-                          padding:
-                              EdgeInsets.only(left: 24, right: 24, bottom: 12),
+        return Scaffold(
+//          appBar: AppBar(
+//            title: Text("LoginPage"),
+//          ),
+          body: GestureDetector(
+            onTap: () {
+              emailFocusNode.unfocus();
+              passwordFocusNode.unfocus();
+            },
+            child: SingleChildScrollView(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height,
+                ),
+                child: Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: Container(
+                          child: Center(
+                              child: FractionallySizedBox(
+                        child: Image.asset('assets/images/mark.png'),
+                        widthFactor: 0.4,
+                        heightFactor: 0.4,
+                      ))),
+                    ),
+                    Expanded(
+                      child: Container(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: <Widget>[
-                              TextField(
-                                decoration: InputDecoration(
-                                  hintText: '请输入邮箱',
-                                  labelText: '邮箱',
-                                ),
-                                focusNode: emailFocusNode,
-                                keyboardType: TextInputType.emailAddress,
-                                textInputAction: TextInputAction.next,
-                                onSubmitted: (String value) {
-                                  FocusScope.of(context)
-                                      .requestFocus(passwordFocusNode);
-                                },
-                                onChanged: _checkInputValid,
-                                controller: _emailController,
-                              ),
-                              TextField(
-                                decoration: InputDecoration(
-                                  hintText: '请输入六位以上的密码',
-                                  labelText: '密码',
-                                  suffixIcon: FlatButton(
-                                    child: Text('忘记密码？'),
-                                    onPressed: () {},
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(left: 24, right: 24, bottom: 12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                TextField(
+                                  decoration: InputDecoration(
+                                    hintText: '请输入邮箱',
+                                    labelText: '邮箱',
                                   ),
+                                  focusNode: emailFocusNode,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  onSubmitted: (String value) {
+                                    FocusScope.of(context).requestFocus(passwordFocusNode);
+                                  },
+                                  onChanged: _checkInputValid,
+                                  controller: _emailController,
                                 ),
-                                obscureText: true,
-                                focusNode: passwordFocusNode,
-                                textInputAction: TextInputAction.done,
-                                onChanged: _checkInputValid,
-                                controller: _passwordController,
-                              ),
-                            ],
+                                TextField(
+                                  decoration: InputDecoration(
+                                    hintText: '请输入六位以上的密码',
+                                    labelText: '密码',
+                                    suffixIcon: FlatButton(
+                                      child: Text('忘记密码？'),
+                                      onPressed: () {},
+                                    ),
+                                  ),
+                                  obscureText: true,
+                                  focusNode: passwordFocusNode,
+                                  textInputAction: TextInputAction.done,
+                                  onChanged: _checkInputValid,
+                                  controller: _passwordController,
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 24, right: 24, top: 12, bottom: 12),
-                          child: FlatButton(
-                            onPressed: canLogin ? _login : null,
-                            color: Color.fromRGBO(69, 202, 181, 1),
-                            disabledColor: Color.fromRGBO(69, 202, 160, 0.5),
-                            child: Text(
-                              '登录',
-                              style: TextStyle(
-                                color: Colors.white,
+                          Padding(
+                            padding: EdgeInsets.only(left: 24, right: 24, top: 12, bottom: 12),
+                            child: FlatButton(
+                              onPressed: canLogin ? _login : null,
+                              color: Color.fromRGBO(69, 202, 181, 1),
+                              disabledColor: Color.fromRGBO(69, 202, 160, 0.5),
+                              child: Text(
+                                '登录',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.only(
-                                left: 24, right: 24, top: 12, bottom: 12),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text('没有账号？'),
-                                InkWell(
-                                  child: Text('立即注册'),
-                                  onTap: () {},
-                                )
-                              ],
-                            )),
-                      ],
-                    )),
-                  ),
-                ],
+                          Padding(
+                              padding: EdgeInsets.only(left: 24, right: 24, top: 12, bottom: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text('没有账号？'),
+                                  InkWell(
+                                    child: Text('立即注册'),
+                                    onTap: () {},
+                                  )
+                                ],
+                              )),
+                        ],
+                      )),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -209,19 +217,30 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void showLoginResultDialog({String error}) {
-    showDialog(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-              title: Text('服务器返回信息'),
-              content: Text(error == null ? '登录成功' : '登录失败，服务器信息为：${error}'),
-              actions: <Widget>[
-                FlatButton(
-                  child: Text('确定'),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                )
-              ],
-            ));
+    Navigator.of(context).pop();
+
+//    if (error == null) {
+//      _save();
+//    }
+//    showDialog(
+//        context: context,
+//        builder: (BuildContext context) => AlertDialog(
+//              title: Text('服务器返回信息'),
+//              content: Text(error == null ? '登录成功' : '登录失败，服务器信息为：${error}'),
+//              actions: <Widget>[
+//                FlatButton(
+//                  child: Text('确定'),
+//                  onPressed: () {
+//                    Navigator.of(context).pop();
+//                  },
+//                )
+//              ],
+//            ));
+  }
+
+  void _save() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setString("Email", _emailController.text);
+    sharedPreferences.setString(_emailController.text, _passwordController.text);
   }
 }
