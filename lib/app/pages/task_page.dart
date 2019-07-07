@@ -1,39 +1,64 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/app/data/priority.dart';
+import 'package:todo_list/app/utils/location.dart';
 import 'package:todo_list/app/utils/utils.dart';
 import 'package:todo_list/app/widgets/widgets.dart';
 
-class AddTaskPage extends StatefulWidget {
+class PriorityPopupMenuItem extends PopupMenuItem<int> {
+  PriorityPopupMenuItem({Key key, Priority priority}):
+    assert(priority != null),
+    super(
+      key: key,
+      value: priority.value,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Text(priority.description),
+          Container(
+            width: 100,
+            height: 5,
+            color: priority.color,
+          )
+        ],
+      )
+    );
+}
+
+class TaskPage extends StatefulWidget {
+
+  final TaskPageType pageType;
+
+  TaskPage({
+    Key key,
+    // 默认页面类型为 任务添加页面
+    this.pageType = TaskPageType.add
+  }): super(key: key);
+
   @override
   State<StatefulWidget> createState() {
-    return AddTaskPageState();
+    return TaskPageState();
   }
+}
+
+/// 页面类型
+enum TaskPageType {
+  add,
+  edit,
+  view,
 }
 
 typedef TextChangeFunc = void Function(String);
 
 typedef TextComplete = void Function();
 
-const SlowStr = "不紧急";
-const NormalStr = "正常";
-const ImportStr = "重要";
-const VeryImportStr = "非常重要";
-
-class AddTaskPageState extends State<AddTaskPage> {
+class TaskPageState extends State<TaskPage> {
   final TextEditingController _taskNameController = TextEditingController();
   final TextEditingController _taskDescController = TextEditingController();
 
   final taskNameFocusNode = FocusNode();
   final taskDescFocusNode = FocusNode();
 
-  final Map<String, Color> _priorityTags = {
-    SlowStr: Color(0xFF50D2C2),
-    NormalStr: Color(0xFF14D4F4),
-    ImportStr: Color(0xFFFF9400),
-    VeryImportStr: Color(0xFFE53B3B),
-  };
-
-  String _priorityValue;
-  Color _priorityColor;
+  Priority _priority = Priority.normal;
 
   TextEditingController _dateTextController;
   DateFieldController _dateController;
@@ -41,7 +66,7 @@ class AddTaskPageState extends State<AddTaskPage> {
   TimeFieldController _startTimeController;
   TextEditingController _endTimeTextController;
   TimeFieldController _endTimeController;
-
+  TaskPageType _pageType = TaskPageType.view;
 
   final TextStyle _titleStyle = TextStyle(color: Color(0xFF1D1D26), fontFamily: 'Avenir', fontSize: 14.0);
   final EdgeInsetsGeometry _padding = const EdgeInsets.fromLTRB(20, 10, 20, 20);
@@ -52,8 +77,12 @@ class AddTaskPageState extends State<AddTaskPage> {
   @override
   void initState() {
     super.initState();
-    _priorityValue = SlowStr;
-    _priorityColor = _priorityTags[SlowStr];
+
+    _pageType = widget.pageType;
+
+    // Location.getCurrentLocation().then((value) {
+    //   print('当前位置' + value);
+    // });
 
     _dateTextController = TextEditingController();
     _dateController = DateFieldController();
@@ -77,18 +106,39 @@ class AddTaskPageState extends State<AddTaskPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: IconButton(icon: Icon(Icons.close, color: Color(0xffbbbbbe)), onPressed: _cancel,),
-        title: Text(
-          '添加任务',
-          style: TextStyle(color: Colors.black),
-        ),
-        actions: <Widget>[IconButton(icon: Icon(Icons.check, color: Color(0xffbbbbbe)), onPressed: _submit)],
-      ),
+      appBar: _buildAppBar(),
       body: _buildForm(),
       resizeToAvoidBottomPadding: false, //输入框抵住键盘
     );
+  }
+
+  /// 创建 AppBar
+  Widget _buildAppBar() {
+    return AppBar(
+      // 设置 AppBar 的背景色为白色
+      backgroundColor: Colors.white,
+      // 创建取消按钮，该按钮被点击时会触发 _cancel() 函数
+      leading: IconButton(icon: Icon(Icons.close, color: Color(0xffbbbbbe)), onPressed: _cancel,),
+      // 设置页面标题
+      title: Text(
+        _pageTitle,
+        style: TextStyle(color: Colors.black),
+      ),
+      // 创建确定按钮，该按钮被点击时会触发 _submit() 函数
+      actions: <Widget>[IconButton(icon: Icon(Icons.check, color: Color(0xffbbbbbe)), onPressed: _submit)],
+    );
+  }
+
+  /// 获取页面标题
+  String get _pageTitle {
+    switch (_pageType) {
+      case TaskPageType.add:
+        return '添加任务';
+      case TaskPageType.edit:
+        return '编辑任务';
+      default:
+        return '查看任务';
+    }
   }
 
   Widget _buildForm() {
@@ -117,7 +167,7 @@ class AddTaskPageState extends State<AddTaskPage> {
                 ),
               ],
             ),
-            _createPriorityWidget(context),
+            _buildPriorityWidget(),
           ],
         ),
       ),
@@ -160,6 +210,7 @@ class AddTaskPageState extends State<AddTaskPage> {
       labelStyle: _titleStyle,
       padding: _padding,
       child: DateField(
+        locale: Locale('zh', 'CN'),
         child: TextField(
           controller: textController,
           decoration: InputDecoration(
@@ -197,7 +248,7 @@ class AddTaskPageState extends State<AddTaskPage> {
     );
   }
 
-  Widget _createPriorityWidget(BuildContext context) {
+  Widget _buildPriorityWidget() {
     return LabeledField(
       labelText: '优先级',
       labelStyle: _titleStyle,
@@ -211,31 +262,11 @@ class AddTaskPageState extends State<AddTaskPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Container(
-                  child: Text(_priorityValue),
+                  child: Text(_priority.description),
                 ),
                 GestureDetector(
                   behavior: HitTestBehavior.translucent,
-                  onTap: () async {
-                    String priorityStr = await showMenu(
-                        context: context,
-                        position: buttonMenuPosition(context),
-//    position: RelativeRect.fromLTRB(1000.0, 1000.0, 0.0, 10.0),
-                        items: <PopupMenuItem<String>>[
-                          _createPopMenuItemWidget(
-                              SlowStr, _priorityTags[SlowStr]),
-                          _createPopMenuItemWidget(
-                              NormalStr, _priorityTags[NormalStr]),
-                          _createPopMenuItemWidget(
-                              ImportStr, _priorityTags[ImportStr]),
-                          _createPopMenuItemWidget(
-                              VeryImportStr, _priorityTags[VeryImportStr]),
-                        ]);
-                    if (priorityStr == null) return;
-                    this.setState(() {
-                      _priorityValue = priorityStr;
-                      _priorityColor = _priorityTags[priorityStr];
-                    });
-                  },
+                  onTap: _showPriorityMenu,
                   child: Container(
                     width: 100,
                     height: 50,
@@ -244,7 +275,7 @@ class AddTaskPageState extends State<AddTaskPage> {
                       key: _priorityContainerKey,
                       width: 100,
                       height: 5,
-                      color: _priorityColor,
+                      color: _priority.color,
                     ),
                   ),
                 ),
@@ -261,40 +292,48 @@ class AddTaskPageState extends State<AddTaskPage> {
     );
   }
 
-  Widget _createPopMenuItemWidget(String title, Color color) {
-    return PopupMenuItem<String>(
-      value: title,
+  _showPriorityMenu() async {
+    /// 弹出优先级选择菜单
+    int priority = await showMenu(
+      context: context,
+      position: _getMenuPosition(context),
+      /// 将Priority的所有值列表映射为PriorityPopupMenuItem列表
+      items: Priority.values.map((e) => _buildPriorityPopupMenuItem(e)).toList(),
+    );
+    if (priority == null) return;
+    /// 将优先级值对应的Priority对象赋值给_priority
+    this.setState(() {
+      _priority = Priority(priority);
+    });
+  }
+
+  PopupMenuItem<int> _buildPriorityPopupMenuItem(Priority priority) {
+    return PopupMenuItem<int>(
+      value: priority.value,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(title),
+          Text(priority.description),
           Container(
             width: 100,
             height: 5,
-            color: color,
+            color: priority.color,
           )
         ],
-      ),
+      )
     );
   }
 
-  RelativeRect buttonMenuPosition(BuildContext c) {
-    final RenderBox renderBox =
-        _priorityContainerKey.currentContext.findRenderObject();
-//    final positionRed = renderBox.localToGlobal(Offset.zero);
-
+  RelativeRect _getMenuPosition(BuildContext c) {
+    /// 获取优先级展示框的色块的Container对象锁对应的RenderBox对象
+    final RenderBox renderBox = _priorityContainerKey.currentContext.findRenderObject();
+    /// 获取当前上下文中图层对象
     final RenderBox overlay = Overlay.of(c).context.findRenderObject();
-    final RelativeRect position = RelativeRect.fromRect(
-      Rect.fromPoints(
-        renderBox.localToGlobal(
-            Offset(renderBox.size.width, renderBox.size.height),
-            ancestor: overlay),
-        renderBox.localToGlobal(
-            Offset(renderBox.size.width, renderBox.size.height),
-            ancestor: overlay),
-      ),
-      Offset.zero & overlay.size,
-    );
-    return position;
+    /// 将色块的右下角的坐标转换为全局坐标
+    final Offset startPoint = renderBox.localToGlobal(Offset(renderBox.size.width, renderBox.size.height), ancestor: overlay);
+    /// 构造色块右下角位置所对应的RelativeRect对象
+    return RelativeRect.fromSize(
+      Rect.fromLTRB(startPoint.dx, startPoint.dy, startPoint.dx, startPoint.dy),
+      overlay.size);
   }
 }

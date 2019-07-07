@@ -1,32 +1,32 @@
-import 'package:todo_list/app/data/todo_entry.dart';
+import 'package:todo_list/app/data/todo_task.dart';
 
-class TodoList implements Map<String, TodoEntry> {
+class TodoList implements Map<String, TodoTask> {
 
-  Map<String, TodoEntry> data;
+  Map<String, TodoTask> data;
 
   TodoList([this.data]) {
     if (this.data == null) {
-      this.data = Map<String, TodoEntry>();
+      this.data = Map<String, TodoTask>();
     }
   }
 
   @override
-  TodoEntry operator [](Object key) {
+  TodoTask operator [](Object key) {
     return data[key];
   }
 
   @override
-  void operator []=(String key, TodoEntry value) {
+  void operator []=(String key, TodoTask value) {
     data[key] = value;
   }
 
   @override
-  void addAll(Map<String, TodoEntry> other) {
+  void addAll(Map<String, TodoTask> other) {
     data.addAll(other);
   }
 
   @override
-  void addEntries(Iterable<MapEntry<String, TodoEntry>> newEntries) {
+  void addEntries(Iterable<MapEntry<String, TodoTask>> newEntries) {
     data.addEntries(newEntries);
   }
 
@@ -51,10 +51,10 @@ class TodoList implements Map<String, TodoEntry> {
   }
 
   @override
-  Iterable<MapEntry<String, TodoEntry>> get entries => data.entries;
+  Iterable<MapEntry<String, TodoTask>> get entries => data.entries;
 
   @override
-  void forEach(void Function(String key, TodoEntry value) f) {
+  void forEach(void Function(String key, TodoTask value) f) {
     data.forEach(f);
   }
 
@@ -71,37 +71,37 @@ class TodoList implements Map<String, TodoEntry> {
   int get length => data.length;
 
   @override
-  Map<K2, V2> map<K2, V2>(MapEntry<K2, V2> Function(String key, TodoEntry value) f) {
+  Map<K2, V2> map<K2, V2>(MapEntry<K2, V2> Function(String key, TodoTask value) f) {
     return data.map(f);
   }
 
   @override
-  TodoEntry putIfAbsent(String key, TodoEntry Function() ifAbsent) {
+  TodoTask putIfAbsent(String key, TodoTask Function() ifAbsent) {
     return data.putIfAbsent(key, ifAbsent);
   }
 
   @override
-  TodoEntry remove(Object key) {
+  TodoTask remove(Object key) {
     return data.remove(key);
   }
 
   @override
-  void removeWhere(bool Function(String key, TodoEntry value) predicate) {
+  void removeWhere(bool Function(String key, TodoTask value) predicate) {
     return data.removeWhere(predicate);
   }
 
   @override
-  TodoEntry update(String key, TodoEntry Function(TodoEntry value) update, {TodoEntry Function() ifAbsent}) {
+  TodoTask update(String key, TodoTask Function(TodoTask value) update, {TodoTask Function() ifAbsent}) {
     return data.update(key, update);
   }
 
   @override
-  void updateAll(TodoEntry Function(String key, TodoEntry value) update) {
+  void updateAll(TodoTask Function(String key, TodoTask value) update) {
     data.updateAll(update);
   }
 
   @override
-  Iterable<TodoEntry> get values => data.values;
+  Iterable<TodoTask> get values => data.values;
 
 }
 

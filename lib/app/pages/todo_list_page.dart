@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_list/app/components/message_dialog.dart';
 import 'package:todo_list/app/components/task_item.dart';
 import 'package:todo_list/app/data/task_list_page_model.dart';
-import 'package:todo_list/app/data/todo_entry.dart';
+import 'package:todo_list/app/data/todo_task.dart';
 
 class TodoListPage extends StatefulWidget {
   @override
@@ -15,19 +15,19 @@ const Color LATER_TASK_COLOR = Color.fromARGB(255, 255, 51, 102);
 
 class TodoListState extends State<TodoListPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
-  TaskListPageModel<TodoEntry> _list;
+  TaskListPageModel<TodoTask> _list;
 
-  List<TodoEntry> tasks = [
-    TodoEntry(title: "第一个任务", description: "第一个任务描述"),
-    TodoEntry(title: "第二个任务", description: "第二个任务描述"),
-    TodoEntry(title: "第三个任务", description: "第三个任务描述"),
-    TodoEntry(title: "第四个任务", description: "第四个任务描述"),
-    TodoEntry(title: "第五个任务", description: "第五个任务描述"),
-    TodoEntry(title: "第六个任务", description: "第六个任务描述"),
-    TodoEntry(title: "第七个任务", description: "第七个任务描述"),
-    TodoEntry(title: "第八个任务", description: "第八个任务描述"),
-    TodoEntry(title: "第九个任务", description: "第九个任务描述"),
-    TodoEntry(title: "第十个任务", description: "第十个任务描述"),
+  List<TodoTask> tasks = [
+    TodoTask(title: "第一个任务", description: "第一个任务描述"),
+    TodoTask(title: "第二个任务", description: "第二个任务描述"),
+    TodoTask(title: "第三个任务", description: "第三个任务描述"),
+    TodoTask(title: "第四个任务", description: "第四个任务描述"),
+    TodoTask(title: "第五个任务", description: "第五个任务描述"),
+    TodoTask(title: "第六个任务", description: "第六个任务描述"),
+    TodoTask(title: "第七个任务", description: "第七个任务描述"),
+    TodoTask(title: "第八个任务", description: "第八个任务描述"),
+    TodoTask(title: "第九个任务", description: "第九个任务描述"),
+    TodoTask(title: "第十个任务", description: "第十个任务描述"),
   ];
   Set<String> selectedTask = Set();
 
@@ -76,7 +76,7 @@ class TodoListState extends State<TodoListPage> {
     );
   }
 
-  void _finished(TodoEntry task) {
+  void _finished(TodoTask task) {
 //    task.finished = !task.finished;
 //    if (task.finished) {
 //      _list.remove(task);
@@ -100,7 +100,7 @@ class TodoListState extends State<TodoListPage> {
 
   AnimatedListState get _animatedList => _listKey.currentState;
 
-  void _star(TodoEntry task) {
+  void _star(TodoTask task) {
     task.import = !task.import;
     _list.remove(task);
     if (task.import) {
@@ -111,7 +111,7 @@ class TodoListState extends State<TodoListPage> {
     }
   }
 
-  void _delete(TodoEntry task) {
+  void _delete(TodoTask task) {
     final index = tasks.indexOf(task);
     tasks.remove(task);
     setState(() {});
@@ -119,12 +119,12 @@ class TodoListState extends State<TodoListPage> {
     animatedRemove(task);
   }
 
-  void animatedInsert(TodoEntry task, {int index = 0}) {
+  void animatedInsert(TodoTask task, {int index = 0}) {
     tasks.insert(index, task);
     _animatedList.insertItem(index);
   }
 
-  void animatedRemove(TodoEntry task) {
+  void animatedRemove(TodoTask task) {
     final int index = tasks.indexOf(task);
     tasks.remove(task);
     _animatedList.removeItem(index, (context, animation) {
@@ -137,7 +137,7 @@ class TodoListState extends State<TodoListPage> {
     if (index >= tasks.length) {
       return null;
     }
-    TodoEntry task = tasks[index];
+    TodoTask task = tasks[index];
     return TaskItem(
       task: task,
       animation: animation,

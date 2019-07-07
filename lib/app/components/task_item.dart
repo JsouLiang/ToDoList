@@ -1,14 +1,14 @@
 import 'package:flutter/animation.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_list/app/data/todo_entry.dart';
+import 'package:todo_list/app/data/todo_task.dart';
 
 const Color DOING_TASK_COLOR = Color.fromARGB(255, 80, 210, 194);
 const Color LATER_TASK_COLOR = Color.fromARGB(255, 255, 51, 102);
 
-typedef TaskCallBack = void Function(TodoEntry task);
+typedef TaskCallBack = void Function(TodoTask task);
 
 class TaskItem extends StatefulWidget {
-  final TodoEntry task;
+  final TodoTask task;
   final Animation<double> animation;
   final canOption;
   TaskCallBack onFinished;
