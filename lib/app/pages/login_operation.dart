@@ -1,26 +1,27 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 class LoginOperation {
-  Future<String> login(
-      {@required String username, @required String password}) async {
+  Future<String> login({@required String username, @required String password}) async {
     await Future.delayed(Duration(seconds: 1));
     return 'success';
   }
-//  Future<Response> login(
-//      {@required String username, @required String password}) async {
-////    Response response = await post('http://10.0.2.2:8989/login',
-////        body: JsonEncoder().convert({
-////          'email': username,
-////          'password': password,
-////        }),
-////        headers: {
-////          'Content-Type': 'application/json',
-////        });
-//    return response;
-//  }
+
+  Future<Response> loginWithHttp({@required String username, @required String password}) async {
+    Response response = await post('http://10.0.2.2:8989/login',
+        body: JsonEncoder().convert({
+          'email': username,
+          'password': password,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        });
+    return response;
+  }
 }
 
 /// Login Bloc need Login State && Login Event
@@ -89,8 +90,7 @@ class LoginBloc extends Bloc<LoginButtonPressEvent, LoginState> {
   Stream<LoginState> mapEventToState(LoginButtonPressEvent event) async* {
     yield LoginLoading();
     try {
-      String response = await loginOperation.login(
-          username: event.username, password: event.password);
+      String response = await loginOperation.login(username: event.username, password: event.password);
       if (response != null) {
         tokenVerifyBloc.dispatch(VerifyEvent(null));
       } else {

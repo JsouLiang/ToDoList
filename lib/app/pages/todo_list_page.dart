@@ -37,17 +37,12 @@ class TodoListState extends State<TodoListPage> {
   void initState() {
     super.initState();
     Future.delayed(Duration(seconds: 2), () {});
-    _list = TaskListPageModel(
-        listKey: _listKey, initialItems: tasks, removedItemBuilder: _buildRow);
+    _list = TaskListPageModel(listKey: _listKey, initialItems: tasks, removedItemBuilder: _buildRow);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('YOUR LIST'),
-        actions: <Widget>[],
-      ),
       body: AnimatedList(
           key: _listKey,
           initialItemCount: tasks.length,
@@ -132,8 +127,7 @@ class TodoListState extends State<TodoListPage> {
     });
   }
 
-  Widget _buildRow(int index, BuildContext context, Animation animation,
-      {bool canOption = true}) {
+  Widget _buildRow(int index, BuildContext context, Animation animation, {bool canOption = true}) {
     if (index >= tasks.length) {
       return null;
     }
