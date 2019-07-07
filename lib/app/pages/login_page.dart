@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_list/app/data/app_state.dart';
 
 import 'login_operation.dart';
 
@@ -47,6 +48,16 @@ class _LoginPageState extends State<LoginPage> {
 
   _login() {
     _loginBloc.dispatch(LoginButtonPressEvent(username: _emailController.text, password: _passwordController.text));
+  }
+
+  AppState _appState;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_appState == null) {
+      _appState = AppStateContainer.of(context);
+    }
   }
 
 //  _login() async {
@@ -217,8 +228,9 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void showLoginResultDialog({String error}) {
+    _save();
+    _appState.email = _emailController.text;
     Navigator.of(context).pop();
-
 //    if (error == null) {
 //      _save();
 //    }
