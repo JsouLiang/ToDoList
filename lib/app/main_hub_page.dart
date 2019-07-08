@@ -24,8 +24,6 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
     {'icon': new Icon(Icons.favorite)},
     {'icon': new Icon(Icons.import_contacts)}
   ];
-  AppState appState;
-
   final List<Widget> _childPages = [
     TodoListPage(),
 //    TodoListPage(),
@@ -44,52 +42,16 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
   @override
   void initState() {
     super.initState();
-    _hadLogined();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (appState == null) {
-      appState = AppStateContainer.of(context);
-    }
-  }
-
-  _hadLogined() async {
-    String email = await _savedEmail();
-    if (email != null) {
-      /// 获取本地数据
-      setState(() {
-        appState.email = email;
-      });
-    } else {
-      /// 弹窗登录页面
-      Navigator.of(context).push(PageRouteBuilder(
-          pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) =>
-              LoginPage(),
-          transitionsBuilder:
-              (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
-            return SlideTransition(
-              position: Tween(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0)).animate(animation),
-              child: child,
-            );
-          }));
-    }
   }
 
   @override
   void dispose() {
     super.dispose();
-  }
-
-  Widget _getBody() {
-    if (appState.loading) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    } else {
-      return _childPages[_currentIndex];
-    }
   }
 
   @override
@@ -105,7 +67,7 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
           actions: <Widget>[],
         ),
         backgroundColor: Colors.white,
-        body: _getBody(),
+        body: _childPages[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(
           onTap: _onTabChange,
           currentIndex: _currentIndex,
@@ -126,36 +88,8 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
             _buildBottomNavigationBarItem(imagePath: 'assets/images/completed.png'),
           ],
         ),
-//        bottomNavigationBar: SafeArea(
-//          child: Container(
-//            height: 65.0,
-//            child: TabBar(
-//              indicatorWeight: 0.0,
-//              controller: _tabController,
-////              unselectedLabelColor: Colors.black26,
-//              tabs: <Widget>[
-//                Tab(
-//                  icon: ImageIcon(AssetImage('assets/images/calendar.png')),
-//                ),
-//                Tab(
-//                  icon: ImageIcon(AssetImage('assets/images/add.png')),
-//                )
-//              ],
-//            ),
-//          ),
-//        ),
       ),
     );
-  }
-
-  Future<String> _savedEmail() async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString("Email");
-  }
-
-  Future<String> _savedPassword(String email) async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString(email);
   }
 
   BottomNavigationBarItem _buildBottomNavigationBarItem({String title, @required String imagePath}) {

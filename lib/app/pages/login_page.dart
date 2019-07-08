@@ -230,7 +230,7 @@ class _LoginPageState extends State<LoginPage> {
   void showLoginResultDialog({String error}) {
     _save();
     _appState.email = _emailController.text;
-    Navigator.of(context).pop();
+    Navigator.of(context).pop(_emailController.text);
 //    if (error == null) {
 //      _save();
 //    }

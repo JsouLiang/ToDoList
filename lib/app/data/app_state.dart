@@ -1,19 +1,9 @@
 import 'package:flutter/widgets.dart';
 
 class AppState {
-  bool loading;
-  String _email;
-  AppState({String email, this.loading = false}) : _email = email;
-  factory AppState.loading() => AppState(loading: true);
+  String email;
+  AppState({this.email});
 
-  set email(value) {
-    if (value != _email) {
-      _email = value;
-      loading = false;
-    }
-  }
-
-  get email => _email;
   @override
   String toString() {
     return 'AppState{email:}';

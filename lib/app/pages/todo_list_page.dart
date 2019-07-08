@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo_list/app/components/message_dialog.dart';
 import 'package:todo_list/app/components/task_item.dart';
+import 'package:todo_list/app/data/app_state.dart';
+import 'package:todo_list/app/data/data_base.dart';
 import 'package:todo_list/app/data/task_list_page_model.dart';
 import 'package:todo_list/app/data/todo_task.dart';
+import 'package:todo_list/app/pages/login_page.dart';
 
 class TodoListPage extends StatefulWidget {
   @override
@@ -17,33 +21,62 @@ class TodoListState extends State<TodoListPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   TaskListPageModel<TodoTask> _list;
 
-  List<TodoTask> tasks = [
-    TodoTask(title: "第一个任务", description: "第一个任务描述"),
-    TodoTask(title: "第二个任务", description: "第二个任务描述"),
-    TodoTask(title: "第三个任务", description: "第三个任务描述"),
-    TodoTask(title: "第四个任务", description: "第四个任务描述"),
-    TodoTask(title: "第五个任务", description: "第五个任务描述"),
-    TodoTask(title: "第六个任务", description: "第六个任务描述"),
-    TodoTask(title: "第七个任务", description: "第七个任务描述"),
-    TodoTask(title: "第八个任务", description: "第八个任务描述"),
-    TodoTask(title: "第九个任务", description: "第九个任务描述"),
-    TodoTask(title: "第十个任务", description: "第十个任务描述"),
-  ];
+  List<TodoTask> tasks = [];
   Set<String> selectedTask = Set();
 
   int _lastStarIndex = 0;
-
+  AppState appState;
+  DataBase _dataBase;
+  bool _loading = true;
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(seconds: 2), () {});
-    _list = TaskListPageModel(listKey: _listKey, initialItems: tasks, removedItemBuilder: _buildRow);
+    _hadLogined();
+  }
+
+  _hadLogined() async {
+    String email = await _savedEmail();
+    if (email == null) {
+      /// 弹窗登录页面
+      email = await Navigator.of(context).push(PageRouteBuilder(
+          pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) =>
+              LoginPage(),
+          transitionsBuilder:
+              (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+            return SlideTransition(
+              position: Tween(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0)).animate(animation),
+              child: child,
+            );
+          }));
+    }
+    if (_dataBase == null || appState.email != email) {
+      _dataBase = DataBase(userName: email);
+    }
+    List<TodoTask> tasks = await _dataBase.data();
+    setState(() {
+      appState.email = email;
+      this.tasks = tasks;
+      _loading = false;
+    });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: AnimatedList(
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (appState == null) {
+      appState = AppStateContainer.of(context);
+    }
+  }
+
+  Widget _getBody() {
+    if (_loading) {
+      return Center(
+        child: CircularProgressIndicator(),
+      );
+    } else {
+      _list = TaskListPageModel(listKey: _listKey, initialItems: tasks, removedItemBuilder: _buildRow);
+
+      return AnimatedList(
           key: _listKey,
           initialItemCount: tasks.length,
           itemBuilder: (context, index, animation) {
@@ -51,7 +84,14 @@ class TodoListState extends State<TodoListPage> {
               return null;
             }
             return _buildRow(index, context, animation);
-          }),
+          });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _getBody(),
       floatingActionButton: FloatingActionButton(
         heroTag: "Add",
         onPressed: () {
@@ -125,6 +165,16 @@ class TodoListState extends State<TodoListPage> {
     _animatedList.removeItem(index, (context, animation) {
       return _buildRow(index, context, animation, canOption: false);
     });
+  }
+
+  Future<String> _savedEmail() async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    return sharedPreferences.getString("Email");
+  }
+
+  Future<String> _savedPassword(String email) async {
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    return sharedPreferences.getString(email);
   }
 
   Widget _buildRow(int index, BuildContext context, Animation animation, {bool canOption = true}) {

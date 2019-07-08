@@ -8,7 +8,7 @@ class ToDoListApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppStateContainer(
-      appState: AppState.loading(),
+      appState: AppState(),
       child: MaterialApp(
         theme: ThemeData(
           primaryColor: Color(ThemeColor),
