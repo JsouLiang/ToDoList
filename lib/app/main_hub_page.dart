@@ -1,9 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:todo_list/app/data/app_state.dart';
 import 'package:todo_list/app/pages/task_page.dart';
-import 'package:todo_list/app/pages/login_page.dart';
 import 'package:todo_list/app/pages/todo_list_page.dart';
 
 const int ThemeColor = 0xFF50D2C2;
@@ -62,10 +59,6 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
         accentColor: Color(ThemeColor),
       ),
       home: Scaffold(
-        appBar: AppBar(
-          title: Text('YOUR LIST'),
-          actions: <Widget>[],
-        ),
         backgroundColor: Colors.white,
         body: _childPages[_currentIndex],
         bottomNavigationBar: BottomNavigationBar(

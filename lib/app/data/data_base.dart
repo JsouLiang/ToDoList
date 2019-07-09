@@ -21,22 +21,23 @@ class DataBase {
 
     Database database = await openDatabase(path, version: 1, onCreate: (Database db, int version) async {
       await db.execute(
-          "CREATE TABLE tasks (id INTEGER PRIMARY KEY, title TEXT, description TEXT, fromTime TEXT, toTime TEXT,finished INTEGER,import INTEGER)");
+          "CREATE TABLE tasks (id TEXT PRIMARY KEY, title TEXT, description TEXT, fromTime TEXT, toTime TEXT,finished INTEGER,import INTEGER, location TEXT, priority INTEGER)");
     });
     return database;
   }
 
   Future<void> insert(TodoTask obj) async {
     final Database dataBase = await _localFile;
-    dataBase.insert("tasks", obj.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
+    Map value = obj.toJson();
+    dataBase.insert("tasks", value, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<TodoTask>> data() async {
     final Database database = await _localFile;
     final List<Map<String, dynamic>> maps = await database.query("tasks");
     return List.generate(maps.length, (i) {
-      bool finished = maps[i]["finished"] as bool;
-      bool import = maps[i]["import"] as bool;
+      bool finished = maps[i]["finished"] == 1;
+      bool import = maps[i]["import"] == 1;
       return TodoTask(
           id: maps[i]["id"],
           title: maps[i]["title"],

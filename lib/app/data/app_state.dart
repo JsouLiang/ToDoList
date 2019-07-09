@@ -1,8 +1,11 @@
 import 'package:flutter/widgets.dart';
+import 'package:todo_list/app/data/todo_task.dart';
 
 class AppState {
   String email;
   AppState({this.email});
+
+  ValueNotifier<List<TodoTask>> tasks = ValueNotifier([]);
 
   @override
   String toString() {

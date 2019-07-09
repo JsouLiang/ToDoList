@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:todo_list/app/components/message_dialog.dart';
 import 'package:todo_list/app/components/task_item.dart';
 import 'package:todo_list/app/data/app_state.dart';
 import 'package:todo_list/app/data/data_base.dart';
 import 'package:todo_list/app/data/task_list_page_model.dart';
 import 'package:todo_list/app/data/todo_task.dart';
 import 'package:todo_list/app/pages/login_page.dart';
+import 'package:todo_list/app/pages/task_page.dart';
 
 class TodoListPage extends StatefulWidget {
   @override
@@ -28,10 +28,18 @@ class TodoListState extends State<TodoListPage> {
   AppState appState;
   DataBase _dataBase;
   bool _loading = true;
+
+  VoidCallback listener;
+
   @override
   void initState() {
     super.initState();
     _hadLogined();
+    listener = () {
+      setState(() {
+        tasks = appState.tasks.value;
+      });
+    };
   }
 
   _hadLogined() async {
@@ -55,6 +63,7 @@ class TodoListState extends State<TodoListPage> {
     List<TodoTask> tasks = await _dataBase.data();
     setState(() {
       appState.email = email;
+      appState.tasks.value = tasks;
       this.tasks = tasks;
       _loading = false;
     });
@@ -65,7 +74,18 @@ class TodoListState extends State<TodoListPage> {
     super.didChangeDependencies();
     if (appState == null) {
       appState = AppStateContainer.of(context);
+      appState.tasks.addListener(listener);
     }
+  }
+
+  @override
+  void dispose() {
+    print('dispose');
+    if (appState != null) {
+      //在这里移除监听事件
+      appState.tasks.removeListener(listener);
+    }
+    super.dispose();
   }
 
   Widget _getBody() {
@@ -91,19 +111,33 @@ class TodoListState extends State<TodoListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text('YOUR LIST'),
+        actions: <Widget>[],
+      ),
       body: _getBody(),
       floatingActionButton: FloatingActionButton(
         heroTag: "Add",
         onPressed: () {
-          showCupertinoDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return MessageDialog(
-                  taskName: "Name",
-                  taskTime: "Time",
-                  taskDesc: "Task Desc",
+          Navigator.of(context).push(PageRouteBuilder(
+              pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) =>
+                  TaskPage(),
+              transitionsBuilder: (BuildContext context, Animation<double> animation,
+                  Animation<double> secondaryAnimation, Widget child) {
+                return SlideTransition(
+                  position: Tween(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0)).animate(animation),
+                  child: child,
                 );
-              });
+              }));
+//          showCupertinoDialog(
+//              context: context,
+//              builder: (BuildContext context) {
+//                return MessageDialog(
+//                  taskName: "Name",
+//                  taskTime: "Time",
+//                  taskDesc: "Task Desc",
+//                );
+//              });
         },
         tooltip: 'Add',
         child: Icon(Icons.add),

@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/app/data/app_state.dart';
+import 'package:todo_list/app/data/data_base.dart';
 import 'package:todo_list/app/data/priority.dart';
-import 'package:todo_list/app/utils/location.dart';
+import 'package:todo_list/app/data/todo_task.dart';
 import 'package:todo_list/app/utils/utils.dart';
 import 'package:todo_list/app/widgets/widgets.dart';
 
 class PriorityPopupMenuItem extends PopupMenuItem<int> {
-  PriorityPopupMenuItem({Key key, Priority priority}):
-    assert(priority != null),
-    super(
-      key: key,
-      value: priority.value,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(priority.description),
-          Container(
-            width: 100,
-            height: 5,
-            color: priority.color,
-          )
-        ],
-      )
-    );
+  PriorityPopupMenuItem({Key key, Priority priority})
+      : assert(priority != null),
+        super(
+            key: key,
+            value: priority.value,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(priority.description),
+                Container(
+                  width: 100,
+                  height: 5,
+                  color: priority.color,
+                )
+              ],
+            ));
 }
 
 class TaskPage extends StatefulWidget {
-
   final TaskPageType pageType;
 
-  TaskPage({
-    Key key,
-    // 默认页面类型为 任务添加页面
-    this.pageType = TaskPageType.add
-  }): super(key: key);
+  TaskPage(
+      {Key key,
+      // 默认页面类型为 任务添加页面
+      this.pageType = TaskPageType.add})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -74,6 +74,9 @@ class TaskPageState extends State<TaskPage> {
 
   final GlobalKey _priorityContainerKey = GlobalKey();
 
+  DataBase _database;
+
+  AppState _appState;
   @override
   void initState() {
     super.initState();
@@ -104,6 +107,14 @@ class TaskPageState extends State<TaskPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_appState == null) {
+      _appState = AppStateContainer.of(context);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
@@ -118,7 +129,10 @@ class TaskPageState extends State<TaskPage> {
       // 设置 AppBar 的背景色为白色
       backgroundColor: Colors.white,
       // 创建取消按钮，该按钮被点击时会触发 _cancel() 函数
-      leading: IconButton(icon: Icon(Icons.close, color: Color(0xffbbbbbe)), onPressed: _cancel,),
+      leading: IconButton(
+        icon: Icon(Icons.close, color: Color(0xffbbbbbe)),
+        onPressed: _cancel,
+      ),
       // 设置页面标题
       title: Text(
         _pageTitle,
@@ -151,10 +165,8 @@ class TaskPageState extends State<TaskPage> {
         },
         child: Column(
           children: <Widget>[
-            _buildInputTextLine('名称', '任务名称', taskNameFocusNode,
-                maxLines: 1, controller: _taskNameController),
-            _buildInputTextLine('描述', '任务描述', taskDescFocusNode,
-                controller: _taskDescController),
+            _buildInputTextLine('名称', '任务名称', taskNameFocusNode, maxLines: 1, controller: _taskNameController),
+            _buildInputTextLine('描述', '任务描述', taskDescFocusNode, controller: _taskDescController),
             _buildDatePicker('日期', '请选择日期', _dateController, _dateTextController),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -175,15 +187,19 @@ class TaskPageState extends State<TaskPage> {
   }
 
   void _submit() {
-    // TODO: 
+    if (_database == null) {
+      _database = DataBase(userName: _appState.email);
+    }
+    final TodoTask task = TodoTask(title: _taskNameController.text, description: _taskDescController.text);
+    _database.insert(task);
+    _appState.tasks.value = [task];
   }
 
   void _cancel() {
     // TODO:
   }
 
-  Widget _buildInputTextLine(
-      String title, String hintText, FocusNode focusNode,
+  Widget _buildInputTextLine(String title, String hintText, FocusNode focusNode,
       {int maxLines, TextEditingController controller}) {
     TextInputType inputType = maxLines == null ? TextInputType.multiline : TextInputType.text;
     return LabeledField(
@@ -204,7 +220,8 @@ class TaskPageState extends State<TaskPage> {
     );
   }
 
-  Widget _buildDatePicker(String title, String hintText, DateFieldController dateController, TextEditingController textController) {
+  Widget _buildDatePicker(
+      String title, String hintText, DateFieldController dateController, TextEditingController textController) {
     return LabeledField(
       labelText: title,
       labelStyle: _titleStyle,
@@ -221,14 +238,14 @@ class TaskPageState extends State<TaskPage> {
         ),
         controller: dateController,
         initialDate: DateTime.now(),
-        firstDate: DateTime(DateTime.now().year, DateTime.now().month,
-            DateTime.now().day - 1),
+        firstDate: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day - 1),
         lastDate: DateTime(2025),
       ),
     );
   }
 
-  Widget _buildSelectedTimeWidget(String title, String hintText, TimeFieldController timeController, TextEditingController textController) {
+  Widget _buildSelectedTimeWidget(
+      String title, String hintText, TimeFieldController timeController, TextEditingController textController) {
     return LabeledField(
       labelText: title,
       labelStyle: _titleStyle,
@@ -297,10 +314,12 @@ class TaskPageState extends State<TaskPage> {
     int priority = await showMenu(
       context: context,
       position: _getMenuPosition(context),
+
       /// 将Priority的所有值列表映射为PriorityPopupMenuItem列表
       items: Priority.values.map((e) => _buildPriorityPopupMenuItem(e)).toList(),
     );
     if (priority == null) return;
+
     /// 将优先级值对应的Priority对象赋值给_priority
     this.setState(() {
       _priority = Priority(priority);
@@ -309,31 +328,33 @@ class TaskPageState extends State<TaskPage> {
 
   PopupMenuItem<int> _buildPriorityPopupMenuItem(Priority priority) {
     return PopupMenuItem<int>(
-      value: priority.value,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(priority.description),
-          Container(
-            width: 100,
-            height: 5,
-            color: priority.color,
-          )
-        ],
-      )
-    );
+        value: priority.value,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text(priority.description),
+            Container(
+              width: 100,
+              height: 5,
+              color: priority.color,
+            )
+          ],
+        ));
   }
 
   RelativeRect _getMenuPosition(BuildContext c) {
     /// 获取优先级展示框的色块的Container对象锁对应的RenderBox对象
     final RenderBox renderBox = _priorityContainerKey.currentContext.findRenderObject();
+
     /// 获取当前上下文中图层对象
     final RenderBox overlay = Overlay.of(c).context.findRenderObject();
+
     /// 将色块的右下角的坐标转换为全局坐标
-    final Offset startPoint = renderBox.localToGlobal(Offset(renderBox.size.width, renderBox.size.height), ancestor: overlay);
+    final Offset startPoint =
+        renderBox.localToGlobal(Offset(renderBox.size.width, renderBox.size.height), ancestor: overlay);
+
     /// 构造色块右下角位置所对应的RelativeRect对象
     return RelativeRect.fromSize(
-      Rect.fromLTRB(startPoint.dx, startPoint.dy, startPoint.dx, startPoint.dy),
-      overlay.size);
+        Rect.fromLTRB(startPoint.dx, startPoint.dy, startPoint.dx, startPoint.dy), overlay.size);
   }
 }

@@ -4,7 +4,6 @@ import 'package:uuid/uuid.dart';
 
 // 定义地点
 class Location extends JSONEncodable<Location> {
-
   // 纬度
   double latitude;
   // 经度
@@ -16,14 +15,21 @@ class Location extends JSONEncodable<Location> {
   Location(this.longitude, this.latitude, [this.description]);
 
   // 命名构造器，用于构造只有描述信息的 Location 对象
-  Location.fromDescription(this.description): latitude = null, longitude = null;
+  Location.fromDescription(this.description)
+      : latitude = null,
+        longitude = null;
+
+  @override
+  String toString() {
+    return "($longitude, $latitude)";
+  }
 
   @override
   Map<String, dynamic> toJson() => {
-    "latitude": latitude,
-    "longitude": longitude,
-    "description": description,
-  };
+        "latitude": latitude,
+        "longitude": longitude,
+        "description": description,
+      };
 }
 
 class TodoTask extends JSONEncodable {
@@ -39,18 +45,17 @@ class TodoTask extends JSONEncodable {
   // 星标 任务
   bool import;
 
-  TodoTask({
-    this.id,
-    this.title,
-    this.description,
-    this.fromTime,
-    this.toTime,
-    this.location,
-    this.priority = 0, // 优先级越小优先级越高
-    this.notifyTime = const Duration(),
-    this.finished = false,
-    this.import = false
-  }) {
+  TodoTask(
+      {this.id,
+      this.title = "",
+      this.description = "",
+      this.fromTime,
+      this.toTime,
+      this.location,
+      this.priority = 0, // 优先级越小优先级越高
+      this.notifyTime = const Duration(),
+      this.finished = false,
+      this.import = false}) {
     // 确保必须有 id，没有就生成一个
     if (id == null) {
       id = generateNewId();
@@ -81,10 +86,10 @@ class TodoTask extends JSONEncodable {
         'id': id,
         'title': title,
         'description': description,
-        'fromTime': fromTime,
-        'toTime': toTime,
-        'location': location,
+        'fromTime': DateTimeFormatter.formatChineseDate(fromTime),
+        'toTime': DateTimeFormatter.formatChineseDate(toTime),
+        'location': "",
         'priority': priority,
-        'notifyTime': notifyTime,
+        'finished': finished
       };
 }
