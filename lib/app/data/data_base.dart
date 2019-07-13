@@ -51,7 +51,8 @@ class DataBase {
 
   Future<void> updateTask(TodoTask task) async {
     final Database database = await _localFile;
-    await database.update("tasks", task.toJson(), where: "id = ?", whereArgs: [task.id]);
+    int res = await database.update("tasks", task.toJson(), where: "id = ?", whereArgs: [task.id]);
+    print(res);
   }
 
   Future<void> delete(String id) async {

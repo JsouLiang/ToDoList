@@ -90,6 +90,7 @@ class TodoTask extends JSONEncodable {
         'toTime': DateTimeFormatter.formatChineseDate(toTime),
         'location': "",
         'priority': priority,
-        'finished': finished
+        'finished': finished,
+        'import': import
       };
 }

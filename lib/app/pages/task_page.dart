@@ -192,7 +192,7 @@ class TaskPageState extends State<TaskPage> {
     }
     final TodoTask task = TodoTask(title: _taskNameController.text, description: _taskDescController.text);
     _database.insert(task);
-    _appState.tasks.value = [task];
+    _appState.tasks.value.add(task);
   }
 
   void _cancel() {

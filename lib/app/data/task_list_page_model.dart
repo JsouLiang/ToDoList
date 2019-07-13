@@ -17,6 +17,7 @@ class TaskListPageModel<E> {
   }) : _items = List<E>.from(initialItems ?? <E>[]);
 
   AnimatedListState get _animatedList => listKey.currentState;
+
   void insert(int index, E item) {
     _items.insert(index, item);
     _animatedList.insertItem(index);
@@ -26,15 +27,14 @@ class TaskListPageModel<E> {
     final int index = _items.indexOf(item);
     _items.remove(item);
     _animatedList.removeItem(index, (context, animation) {
-      return removedItemBuilder(item, context, animation);
+      return removedItemBuilder(index, context, animation);
     });
   }
 
   E removeAt(int index) {
     final E removedItem = _items.removeAt(index);
     if (removedItem != null) {
-      _animatedList.removeItem(index,
-          (BuildContext context, Animation<double> animation) {
+      _animatedList.removeItem(index, (BuildContext context, Animation<double> animation) {
         return removedItemBuilder(removedItem, context, animation);
       });
     }

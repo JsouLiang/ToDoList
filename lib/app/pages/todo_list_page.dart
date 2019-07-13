@@ -23,7 +23,6 @@ class TodoListState extends State<TodoListPage> {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
   TaskListPageModel<TodoTask> _list;
 
-  List<TodoTask> tasks = [];
   Set<String> selectedTask = Set();
 
   int _lastStarIndex = 0;
@@ -39,7 +38,7 @@ class TodoListState extends State<TodoListPage> {
     _hadLogined();
     listener = () {
       setState(() {
-        tasks = appState.tasks.value;
+        _list = TaskListPageModel(listKey: _listKey, initialItems: appState.tasks.value, removedItemBuilder: _buildRow);
       });
     };
   }
@@ -63,10 +62,10 @@ class TodoListState extends State<TodoListPage> {
       _dataBase = DataBase(userName: email);
     }
     List<TodoTask> tasks = await _dataBase.data();
+    _list = TaskListPageModel(listKey: _listKey, initialItems: tasks, removedItemBuilder: _buildRow);
     setState(() {
       appState.email = email;
       appState.tasks.value = tasks;
-      this.tasks = tasks;
       _loading = false;
     });
   }
@@ -96,13 +95,11 @@ class TodoListState extends State<TodoListPage> {
         child: CircularProgressIndicator(),
       );
     } else {
-      _list = TaskListPageModel(listKey: _listKey, initialItems: tasks, removedItemBuilder: _buildRow);
-
       return AnimatedList(
           key: _listKey,
-          initialItemCount: tasks.length,
+          initialItemCount: _list.length,
           itemBuilder: (context, index, animation) {
-            if (index < 0 || index >= tasks.length) {
+            if (index < 0 || index >= _list.length) {
               return null;
             }
             return _buildRow(index, context, animation);
@@ -139,32 +136,23 @@ class TodoListState extends State<TodoListPage> {
   }
 
   void _finished(TodoTask task) {
-//    task.finished = !task.finished;
-//    if (task.finished) {
-//      _list.remove(task);
-//      _list.insert(_list.length, task);
-//    }
-    final index = tasks.indexOf(task);
     task.finished = !task.finished;
-
+    _dataBase.updateTask(task);
+    _list.remove(task);
     if (task.finished) {
-      animatedRemove(index);
-      animatedInsert(task, index: tasks.length);
+      _list.insert(_list.length, task);
+    } else {
+      _list.insert(0, task);
     }
-
-    setState(() {
-//      task.finished = !task.finished;
-//      if (task.finished) {
-//        tasks.remove(task);
-//        tasks.add(task);
-//      }
-    });
   }
 
   AnimatedListState get _animatedList => _listKey.currentState;
 
   void _star(TodoTask task) {
     task.import = !task.import;
+
+    _dataBase.updateTask(task);
+
     _list.remove(task);
     if (task.import) {
       _list.insert(0, task);
@@ -175,16 +163,12 @@ class TodoListState extends State<TodoListPage> {
   }
 
   void _delete(TodoTask task) async {
-    final index = tasks.indexOf(task);
-    tasks.remove(task);
-    setState(() {});
-//    _animatedList.removeItem(index);
-    animatedRemove(index);
+    _dataBase.delete(task.id);
+    _list.remove(task);
   }
 
   void animatedInsert(TodoTask task, {int index = 0}) {
-    tasks.insert(index, task);
-    _animatedList.insertItem(index);
+    _list.insert(index, task);
   }
 
   void animatedRemove(int index) {
@@ -199,10 +183,10 @@ class TodoListState extends State<TodoListPage> {
   }
 
   Widget _buildRow(int index, BuildContext context, Animation animation, {bool canOption = true}) {
-    if (index >= tasks.length) {
+    if (index >= _list.length) {
       return null;
     }
-    TodoTask task = tasks[index];
+    TodoTask task = _list[index];
     return TaskItem(
       task: task,
       animation: animation,
