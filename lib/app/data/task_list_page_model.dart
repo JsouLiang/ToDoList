@@ -23,6 +23,10 @@ class TaskListPageModel<E> {
     _animatedList.insertItem(index);
   }
 
+  void update() {
+    _animatedList;
+  }
+
   void remove(E item) {
     final int index = _items.indexOf(item);
     _items.remove(item);

@@ -62,6 +62,11 @@ class TodoListState extends State<TodoListPage> {
       _dataBase = DataBase(userName: email);
     }
     List<TodoTask> tasks = await _dataBase.data();
+    tasks.forEach((task) {
+      if (task.import) {
+        _lastStarIndex++;
+      }
+    });
     _list = TaskListPageModel(listKey: _listKey, initialItems: tasks, removedItemBuilder: _buildRow);
     setState(() {
       appState.email = email;
@@ -138,6 +143,11 @@ class TodoListState extends State<TodoListPage> {
   void _finished(TodoTask task) {
     task.finished = !task.finished;
     _dataBase.updateTask(task);
+    if (_list.indexOf(task) == 0) {
+      setState(() {});
+      return;
+    }
+
     _list.remove(task);
     if (task.finished) {
       _list.insert(_list.length, task);
@@ -149,16 +159,22 @@ class TodoListState extends State<TodoListPage> {
   AnimatedListState get _animatedList => _listKey.currentState;
 
   void _star(TodoTask task) {
+//    if (task.finished) return;
     task.import = !task.import;
 
     _dataBase.updateTask(task);
 
-    _list.remove(task);
     if (task.import) {
+      if (_list.indexOf(task) == 0) {
+        setState(() {});
+        return;
+      }
+      _list.remove(task);
       _list.insert(0, task);
       _lastStarIndex++;
     } else {
-      _list.insert(--_lastStarIndex, task);
+      _list.remove(task);
+      _list.insert(_lastStarIndex--, task);
     }
   }
 
