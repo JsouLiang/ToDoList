@@ -6,6 +6,7 @@ const Color DOING_TASK_COLOR = Color.fromARGB(255, 80, 210, 194);
 const Color LATER_TASK_COLOR = Color.fromARGB(255, 255, 51, 102);
 
 typedef TaskCallBack = void Function(TodoTask task);
+typedef ConfirmAction = Future<bool> Function(DismissDirection direction, TodoTask task);
 
 class TaskItem extends StatefulWidget {
   final TodoTask task;
@@ -14,15 +15,17 @@ class TaskItem extends StatefulWidget {
   TaskCallBack onFinished;
   TaskCallBack onImported;
   TaskCallBack onDelete;
-  TaskItem(
-      {Key key,
-      @required this.task,
-      @required this.animation,
-      this.onFinished,
-      this.onImported,
-      this.onDelete,
-      this.canOption = true})
-      : super(key: key);
+  ConfirmAction confirmDismissCallback;
+  TaskItem({
+    Key key,
+    @required this.task,
+    @required this.animation,
+    this.onFinished,
+    this.onImported,
+    this.onDelete,
+    this.canOption = true,
+    this.confirmDismissCallback,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -40,8 +43,7 @@ class TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _controller = AnimationController(
-        duration: const Duration(milliseconds: 246), vsync: this);
+    _controller = AnimationController(duration: const Duration(milliseconds: 246), vsync: this);
 
     setState(() {});
 
@@ -87,9 +89,7 @@ class TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
             GestureDetector(
               onTap: () => widget.onFinished(task),
               child: Image.asset(
-                task.finished
-                    ? 'assets/images/rect_selected.png'
-                    : 'assets/images/rect.png',
+                task.finished ? 'assets/images/rect_selected.png' : 'assets/images/rect.png',
                 width: 25.0,
                 height: 25.0,
               ),
@@ -105,9 +105,7 @@ class TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
         GestureDetector(
           onTap: () => widget.onImported(task),
           child: Container(
-            child: Image.asset(task.import
-                ? 'assets/images/Star.png'
-                : 'assets/images/Star_Normal.png'),
+            child: Image.asset(task.import ? 'assets/images/Star.png' : 'assets/images/Star_Normal.png'),
             width: 25.0,
             height: 25.0,
           ),
@@ -139,13 +137,11 @@ class TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
             color: bgColor,
             border: Border(
               top: BorderSide(style: BorderStyle.solid, color: Colors.black12),
-              bottom:
-                  BorderSide(style: BorderStyle.solid, color: Colors.black12),
+              bottom: BorderSide(style: BorderStyle.solid, color: Colors.black12),
             ),
           ),
           child: IconButton(
-            padding: EdgeInsets.only(
-                top: 16.0, bottom: 16.0, left: 24.0, right: 24.0),
+            padding: EdgeInsets.only(top: 16.0, bottom: 16.0, left: 24.0, right: 24.0),
             icon: icon,
             color: Color(0xFFFFFFFF),
             onPressed: () {},
@@ -175,6 +171,10 @@ class TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
         onDismissed: (directiom) {
           widget.onDelete(task);
         },
+        confirmDismiss: (direction) async {
+          bool result = await widget.confirmDismissCallback(direction, task);
+          return result;
+        },
         child: SizeTransition(
           sizeFactor: widget.animation,
           child: content,
@@ -187,10 +187,7 @@ class TaskItemState extends State<TaskItem> with TickerProviderStateMixin {
             children: <Widget>[
               Text(
                 "删除",
-                style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20),
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
               ),
               Icon(
                 Icons.delete,

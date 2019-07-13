@@ -6,25 +6,18 @@ class MessageDialog extends Dialog {
   final String taskDesc;
   Function dismissCallback;
 
-  MessageDialog(
-      {Key key,
-      this.taskName,
-      this.taskTime,
-      this.taskDesc,
-      this.dismissCallback})
-      : super(key: key);
+  MessageDialog({Key key, this.taskName, this.taskTime, this.taskDesc, this.dismissCallback}) : super(key: key);
+
+  _dismissDialog(BuildContext context, bool delete) {
+    Navigator.of(context).pop(delete);
+  }
 
   @override
   Widget build(BuildContext context) {
-    _dismissDialog() {
-      if (dismissCallback != null) {
-        dismissCallback();
-      }
-      Navigator.of(context).pop();
-    }
-
     return new GestureDetector(
-//      onTap: outsideDismiss ? _dismissDialog : null,
+      onTap: () {
+        _dismissDialog(context, false);
+      },
       child: Material(
         type: MaterialType.transparency,
         child: Center(
@@ -43,13 +36,13 @@ class MessageDialog extends Dialog {
                       padding: const EdgeInsets.all(10),
                       child: Column(
                         children: <Widget>[
-                          _createTitleWidget(context),
-                          _createTimeWidget(),
-                          _createDescWidget(),
+                          _createTitleWidget(context, taskName),
+                          _createTimeWidget(taskTime),
+                          _createDescWidget(taskDesc),
                         ],
                       ),
                     ),
-                    _createOperationWidget()
+                    _createOperationWidget(context)
                   ],
                 ),
               ),
@@ -60,28 +53,24 @@ class MessageDialog extends Dialog {
     );
   }
 
-  Widget _createTitleWidget(BuildContext context) {
+  Widget _createTitleWidget(BuildContext context, String title) {
     return Row(
       children: <Widget>[
         Container(
           height: 15.0,
           width: 15.0,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(7.5)),
-              color: Color.fromARGB(255, 80, 210, 194)),
+              borderRadius: BorderRadius.all(Radius.circular(7.5)), color: Color.fromARGB(255, 80, 210, 194)),
         ),
         Container(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
             child: Text(
-              'Dinner withAndreainner',
+              title,
               overflow: TextOverflow.ellipsis,
               softWrap: false,
               maxLines: 1,
-              style: TextStyle(
-                  color: Color.fromARGB(255, 74, 74, 74),
-                  fontSize: 18,
-                  fontFamily: 'Avenir'),
+              style: TextStyle(color: Color.fromARGB(255, 74, 74, 74), fontSize: 18, fontFamily: 'Avenir'),
             ),
           ),
         ),
@@ -98,7 +87,7 @@ class MessageDialog extends Dialog {
     );
   }
 
-  Widget _createTimeWidget() {
+  Widget _createTimeWidget(String time) {
     return Row(
       children: <Widget>[
         Image.asset(
@@ -108,7 +97,7 @@ class MessageDialog extends Dialog {
         ),
         Expanded(
           child: Text(
-            '17AM · 7 pm',
+            time,
             style: TextStyle(color: Colors.black, fontSize: 14),
           ),
         )
@@ -116,37 +105,47 @@ class MessageDialog extends Dialog {
     );
   }
 
-  Widget _createDescWidget() {
+  Widget _createDescWidget(String desc) {
     return Container(
       child: Text(
-        'This is a description of the task. This is a description of the task. This is a description of the task. This is a description of the task. ',
+        desc,
         style: TextStyle(fontSize: 13, color: Colors.black),
       ),
     );
   }
 
-  Widget _createOperationWidget() {
+  Widget _createOperationWidget(BuildContext context) {
     return Row(
       children: <Widget>[
         Expanded(
-          child: Container(
-            alignment: Alignment.center,
-            height: 50,
-            color: Color.fromARGB(255, 221, 221, 221),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white),
+          child: GestureDetector(
+            onTap: () {
+              _dismissDialog(context, false);
+            },
+            child: Container(
+              alignment: Alignment.center,
+              height: 50,
+              color: Color.fromARGB(255, 221, 221, 221),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ),
         Expanded(
-          child: Container(
-            alignment: Alignment.center,
-            height: 50,
-            color: Color.fromARGB(255, 255, 92, 92),
-            child: Text(
-              'Delete',
-              style: TextStyle(color: Colors.white),
+          child: GestureDetector(
+            onTap: () {
+              _dismissDialog(context, true);
+            },
+            child: Container(
+              alignment: Alignment.center,
+              height: 50,
+              color: Color.fromARGB(255, 255, 92, 92),
+              child: Text(
+                'Delete',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ),
         )

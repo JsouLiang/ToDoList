@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:todo_list/app/components/message_dialog.dart';
 import 'package:todo_list/app/components/task_item.dart';
 import 'package:todo_list/app/data/app_state.dart';
 import 'package:todo_list/app/data/data_base.dart';
@@ -8,6 +9,7 @@ import 'package:todo_list/app/data/task_list_page_model.dart';
 import 'package:todo_list/app/data/todo_task.dart';
 import 'package:todo_list/app/pages/login_page.dart';
 import 'package:todo_list/app/pages/task_page.dart';
+import 'package:todo_list/app/utils/date_time.dart';
 
 class TodoListPage extends StatefulWidget {
   @override
@@ -129,15 +131,6 @@ class TodoListState extends State<TodoListPage> {
                   child: child,
                 );
               }));
-//          showCupertinoDialog(
-//              context: context,
-//              builder: (BuildContext context) {
-//                return MessageDialog(
-//                  taskName: "Name",
-//                  taskTime: "Time",
-//                  taskDesc: "Task Desc",
-//                );
-//              });
         },
         tooltip: 'Add',
         child: Icon(Icons.add),
@@ -151,10 +144,11 @@ class TodoListState extends State<TodoListPage> {
 //      _list.remove(task);
 //      _list.insert(_list.length, task);
 //    }
-
+    final index = tasks.indexOf(task);
     task.finished = !task.finished;
+
     if (task.finished) {
-      animatedRemove(task);
+      animatedRemove(index);
       animatedInsert(task, index: tasks.length);
     }
 
@@ -180,12 +174,12 @@ class TodoListState extends State<TodoListPage> {
     }
   }
 
-  void _delete(TodoTask task) {
+  void _delete(TodoTask task) async {
     final index = tasks.indexOf(task);
     tasks.remove(task);
     setState(() {});
 //    _animatedList.removeItem(index);
-    animatedRemove(task);
+    animatedRemove(index);
   }
 
   void animatedInsert(TodoTask task, {int index = 0}) {
@@ -193,9 +187,7 @@ class TodoListState extends State<TodoListPage> {
     _animatedList.insertItem(index);
   }
 
-  void animatedRemove(TodoTask task) {
-    final int index = tasks.indexOf(task);
-    tasks.remove(task);
+  void animatedRemove(int index) {
     _animatedList.removeItem(index, (context, animation) {
       return _buildRow(index, context, animation, canOption: false);
     });
@@ -204,11 +196,6 @@ class TodoListState extends State<TodoListPage> {
   Future<String> _savedEmail() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     return sharedPreferences.getString("Email");
-  }
-
-  Future<String> _savedPassword(String email) async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString(email);
   }
 
   Widget _buildRow(int index, BuildContext context, Animation animation, {bool canOption = true}) {
@@ -223,6 +210,35 @@ class TodoListState extends State<TodoListPage> {
       onImported: _star,
       onDelete: _delete,
       canOption: canOption,
+      confirmDismissCallback: confirmDismissCallback,
     );
+  }
+
+  Future<bool> confirmDismissCallback(DismissDirection direction, TodoTask task) async {
+    if (direction == DismissDirection.endToStart) {
+      String title = "${task.title}";
+      if (title.length == 0) {
+        title = "暂无任务名";
+      }
+      String desc = "${task.description}";
+      if (desc.length == 0) {
+        desc = "暂无描述";
+      }
+
+      String time =
+          "${DateTimeFormatter.formatChineseDate(task.fromTime)}-${DateTimeFormatter.formatChineseDate(task.toTime)}";
+      bool result = await showCupertinoDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return MessageDialog(
+              taskName: "确认删除任务：$title",
+              taskTime: time,
+              taskDesc: desc,
+            );
+          });
+      print(result);
+      return result;
+    }
+    return false;
   }
 }
