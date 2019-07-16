@@ -28,8 +28,7 @@ class DataBase {
 
   Future<void> insert(TodoTask obj) async {
     final Database dataBase = await _localFile;
-    Map value = obj.toJson();
-    dataBase.insert("tasks", value, conflictAlgorithm: ConflictAlgorithm.replace);
+    dataBase.insert("tasks", obj.toJson(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<List<TodoTask>> data() async {

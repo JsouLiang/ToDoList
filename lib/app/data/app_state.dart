@@ -6,11 +6,6 @@ class AppState {
   AppState({this.email});
 
   ValueNotifier<List<TodoTask>> tasks = ValueNotifier([]);
-
-  @override
-  String toString() {
-    return 'AppState{email:}';
-  }
 }
 
 class _InheritedStateContainer extends InheritedWidget {
