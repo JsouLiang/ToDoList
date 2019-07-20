@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:todo_list/app/pages/task_page.dart';
-import 'package:todo_list/app/pages/todo_list_page.dart';
 
 import 'colors.dart';
+import 'tab_config.dart';
 
 class MainHubPage extends StatefulWidget {
   @override
@@ -13,61 +12,27 @@ class MainHubPage extends StatefulWidget {
 }
 
 class MainHubPageState extends State<MainHubPage> with SingleTickerProviderStateMixin {
-  static List tabData = [
-    {'icon': new Icon(Icons.language)},
-    {'icon': new Icon(Icons.extension)},
-    {'icon': new Icon(Icons.favorite)},
-    {'icon': new Icon(Icons.import_contacts)}
-  ];
-  final List<Widget> _childPages = [
-    TodoListPage(),
-//    TodoListPage(),
-    TaskPage(),
-//    TodoListPage(),
-//    TodoListPage(),
-  ];
-
   int _currentIndex = 0;
-  Color _activeTabColor = Color(0xff50D2C2);
-  Color _inactiveTabColor = Colors.black;
 
   @override
   Widget build(BuildContext context) {
+    List<TabConfig> tabs = mainHubPageTabs.takeWhile((tab) => tab.page != null).toList();
     return MaterialApp(
-      theme: ThemeData(
-        primaryColor: Color(themeColor),
-        accentColor: Color(themeColor),
-      ),
       home: Scaffold(
-        backgroundColor: Colors.white,
-        body: _childPages[_currentIndex],
+        backgroundColor: backgroundColor,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: tabs.map((tab) => tab.page).toList()
+        ),
         bottomNavigationBar: BottomNavigationBar(
           onTap: _onTabChange,
           currentIndex: _currentIndex,
           iconSize: 30,
           type: BottomNavigationBarType.fixed,
-          items: [
-            _buildBottomNavigationBarItem(imagePath: 'assets/images/group.png'),
-            BottomNavigationBarItem(
-                icon: Image(
-                  image: AssetImage('assets/images/add.png'),
-                  width: 50,
-                  height: 50,
-                ),
-                title: Text('')),
-            _buildBottomNavigationBarItem(imagePath: 'assets/images/lists.png'),
-            _buildBottomNavigationBarItem(imagePath: 'assets/images/completed.png'),
-          ],
+          items: tabs.map((tab) => _buildBottomNavigationBarItem(tab)).toList()
         ),
       ),
     );
-  }
-
-  BottomNavigationBarItem _buildBottomNavigationBarItem({String title, @required String imagePath}) {
-    return BottomNavigationBarItem(
-        activeIcon: ImageIcon(AssetImage(imagePath), size: 24, color: _activeTabColor),
-        icon: ImageIcon(AssetImage(imagePath), size: 24, color: _inactiveTabColor),
-        title: Text(title ?? ''));
   }
 
   void _onTabChange(int index) {
@@ -75,4 +40,37 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
       _currentIndex = index;
     });
   }
+
+  BottomNavigationBarItem _buildBottomNavigationBarItem(TabConfig tab) {
+    if (tab == null) {
+      return null;
+    }
+    if (tab.navigationBarItem != null) {
+      return tab.navigationBarItem;
+    }
+
+    return BottomNavigationBarItem(
+      activeIcon: ImageIcon(AssetImage(tab.imagePath), size: 24, color: activeTabColor),
+      icon: ImageIcon(AssetImage(tab.imagePath), size: 24, color: inactiveTabColor),
+      title: Text(tab.title ?? '')
+    );
+  }
+}
+
+class TabConfig {
+  /// Tab 名字
+  final String title;
+  /// Tab 上显示的图片
+  final String imagePath;
+  /// 如果想设置自定义的 Widget，可以使用这个选项
+  final BottomNavigationBarItem navigationBarItem;
+  /// tab 对应的页面
+  final Widget page;
+
+  const TabConfig({
+    this.title,
+    this.imagePath,
+    this.navigationBarItem,
+    this.page,
+  });
 }

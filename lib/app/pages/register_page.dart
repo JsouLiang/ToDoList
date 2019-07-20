@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:todo_list/app/main_hub_page.dart';
 
+import '../colors.dart';
+
 class RegisterPage extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => RegisterState();
@@ -88,9 +90,9 @@ class RegisterState extends State<RegisterPage> {
       ),
     );
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: backgroundColor,
         title: Text(
           '注册',
           style: TextStyle(color: Colors.black),

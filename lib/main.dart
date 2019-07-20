@@ -13,9 +13,9 @@ class ToDoListApp extends StatelessWidget {
       appState: AppState(),
       child: MaterialApp(
         theme: ThemeData(
-          primaryColor: Color(themeColor),
-          indicatorColor: Colors.white,
-          accentColor: Color(themeColor),
+          primaryColor: primaryColor,
+          indicatorColor: indicatorColor,
+          accentColor: accentColor,
         ),
         home: MainHubPage(),
       ),

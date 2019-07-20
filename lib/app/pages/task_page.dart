@@ -6,6 +6,8 @@ import 'package:todo_list/app/data/todo_task.dart';
 import 'package:todo_list/app/utils/utils.dart';
 import 'package:todo_list/app/widgets/widgets.dart';
 
+import '../colors.dart';
+
 class PriorityPopupMenuItem extends PopupMenuItem<int> {
   PriorityPopupMenuItem({Key key, Priority priority})
       : assert(priority != null),
@@ -127,7 +129,7 @@ class TaskPageState extends State<TaskPage> {
   Widget _buildAppBar() {
     return AppBar(
       // 设置 AppBar 的背景色为白色
-      backgroundColor: Colors.white,
+      backgroundColor: backgroundColor,
       // 创建取消按钮，该按钮被点击时会触发 _cancel() 函数
       leading: IconButton(
         icon: Icon(Icons.close, color: Color(0xffbbbbbe)),
