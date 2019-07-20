@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:todo_list/app/pages/task_page.dart';
 import 'package:todo_list/app/pages/todo_list_page.dart';
 
-const int ThemeColor = 0xFF50D2C2;
+import 'colors.dart';
 
 class MainHubPage extends StatefulWidget {
   @override
@@ -11,8 +11,6 @@ class MainHubPage extends StatefulWidget {
     return MainHubPageState();
   }
 }
-
-enum PageState { Loading, UserLogined, NoUser }
 
 class MainHubPageState extends State<MainHubPage> with SingleTickerProviderStateMixin {
   static List tabData = [
@@ -33,30 +31,12 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
   Color _activeTabColor = Color(0xff50D2C2);
   Color _inactiveTabColor = Colors.black;
 
-  bool _logined = false;
-  PageState _pageState = PageState.Loading;
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        primaryColor: Color(ThemeColor),
-        accentColor: Color(ThemeColor),
+        primaryColor: Color(themeColor),
+        accentColor: Color(themeColor),
       ),
       home: Scaffold(
         backgroundColor: Colors.white,
@@ -67,15 +47,13 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
           iconSize: 30,
           type: BottomNavigationBarType.fixed,
           items: [
-//            _buildBottomNavigationBarItem(
-//                imagePath: 'assets/images/calendar.png'),
             _buildBottomNavigationBarItem(imagePath: 'assets/images/group.png'),
             BottomNavigationBarItem(
                 icon: Image(
                   image: AssetImage('assets/images/add.png'),
                   width: 50,
                   height: 50,
-                ), //ImageIcon(AssetImage('assets/images/add.png'), size: 60, color: _activeTabColor),
+                ),
                 title: Text('')),
             _buildBottomNavigationBarItem(imagePath: 'assets/images/lists.png'),
             _buildBottomNavigationBarItem(imagePath: 'assets/images/completed.png'),
@@ -93,10 +71,8 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
   }
 
   void _onTabChange(int index) {
-    if (mounted) {
-      this.setState(() {
-        _currentIndex = index;
-      });
-    }
+    this.setState(() {
+      _currentIndex = index;
+    });
   }
 }

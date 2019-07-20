@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:todo_list/app/data/app_state.dart';
 import 'package:todo_list/app/main_hub_page.dart';
 
+import 'app/colors.dart';
+
 void main() => runApp(ToDoListApp());
 
 class ToDoListApp extends StatelessWidget {
@@ -11,9 +13,9 @@ class ToDoListApp extends StatelessWidget {
       appState: AppState(),
       child: MaterialApp(
         theme: ThemeData(
-          primaryColor: Color(ThemeColor),
+          primaryColor: Color(themeColor),
           indicatorColor: Colors.white,
-          accentColor: Color(ThemeColor),
+          accentColor: Color(themeColor),
         ),
         home: MainHubPage(),
       ),
@@ -21,19 +23,3 @@ class ToDoListApp extends StatelessWidget {
   }
 }
 
-const int ThemeColor = 0xFF50D2C2;
-
-//class ToDoListApp extends StatefulWidget {
-//  @override
-//  State<StatefulWidget> createState() {
-//    // TODO: implement createState
-//    return ToDoListAppStatus();
-//  }
-//}
-
-//class ToDoListAppStatus extends State<ToDoListApp> {
-//  @override
-//  Widget build(BuildContext context) {
-//    return
-//  }
-//}
