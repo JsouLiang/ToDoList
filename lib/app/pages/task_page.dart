@@ -30,11 +30,12 @@ class PriorityPopupMenuItem extends PopupMenuItem<int> {
 class TaskPage extends StatefulWidget {
   final TaskPageType pageType;
 
-  TaskPage(
-      {Key key,
-      // 默认页面类型为 任务添加页面
-      this.pageType = TaskPageType.add})
-      : super(key: key);
+  TaskPage({
+    Key key,
+    // 默认页面类型为 任务添加页面
+    @required
+    this.pageType
+    }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -76,6 +77,9 @@ class TaskPageState extends State<TaskPage> {
 
   final GlobalKey _priorityContainerKey = GlobalKey();
 
+  // 标记用户是否修改了数据
+  bool _isContentChanged = false;
+
   DataBase _database;
 
   AppState _appState;
@@ -89,23 +93,29 @@ class TaskPageState extends State<TaskPage> {
     //   print('当前位置' + value);
     // });
 
+    _taskNameController.addListener(_userChangeContent);
+    _taskDescController.addListener(_userChangeContent);
+
     _dateTextController = TextEditingController();
     _dateController = DateFieldController();
     _dateController.addListener(() {
       _dateTextController.text = DateTimeFormatter.formatChineseDate(_dateController.date);
     });
+    _dateTextController.addListener(_userChangeContent);
 
     _startTimeTextController = TextEditingController();
     _startTimeController = TimeFieldController();
     _startTimeController.addListener(() {
       _startTimeTextController.text = _startTimeController.time?.format(context);
     });
+    _startTimeTextController.addListener(_userChangeContent);
 
     _endTimeTextController = TextEditingController();
     _endTimeController = TimeFieldController();
     _endTimeController.addListener(() {
       _endTimeTextController.text = _endTimeController.time?.format(context);
     });
+    _endTimeTextController.addListener(_userChangeContent);
   }
 
   @override
@@ -123,6 +133,10 @@ class TaskPageState extends State<TaskPage> {
       body: _buildForm(),
       resizeToAvoidBottomPadding: false, //输入框抵住键盘
     );
+  }
+
+  void _userChangeContent() {
+    _isContentChanged = true;
   }
 
   /// 创建 AppBar
@@ -195,10 +209,36 @@ class TaskPageState extends State<TaskPage> {
     final TodoTask task = TodoTask(title: _taskNameController.text, description: _taskDescController.text);
     _database.insert(task);
     _appState.tasks.value.add(task);
+    Navigator.of(context).pop();
   }
 
   void _cancel() {
-    // TODO:
+    if (!_isContentChanged) {
+      Navigator.of(context).pop();
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: Text('退出确认'),
+          content: Text('您已经修改了内容，确认退出吗？'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('确定'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('取消'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        )
+      );
+    }
   }
 
   Widget _buildInputTextLine(String title, String hintText, FocusNode focusNode,

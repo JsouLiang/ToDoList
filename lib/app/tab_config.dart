@@ -8,6 +8,7 @@ import 'pages/todo_list_page.dart';
 
 /// 这里放置的首页的 Tab 配置
 final List<TabConfig> mainHubPageTabs = [
+  TabConfig(imagePath: 'assets/images/calendar.png', page: TodoListPage()),
   TabConfig(imagePath: 'assets/images/group.png', page: TodoListPage()),
   TabConfig(
     navigationBarItem: BottomNavigationBarItem(
@@ -18,7 +19,11 @@ final List<TabConfig> mainHubPageTabs = [
       ),
       title: Text('')
     ),
-    page: TaskPage()
+    page: TaskPage(pageType: TaskPageType.add),
+    onTap: (context, tabConfig) {
+      Navigator.of(context).push(PageRouteBuilder(pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) => TaskPage(pageType: TaskPageType.add)));
+      return false;
+    }
   ),
   TabConfig(imagePath: 'assets/images/lists.png', page: TodoListPage()),
   TabConfig(imagePath: 'assets/images/completed.png', page: TodoListPage()),

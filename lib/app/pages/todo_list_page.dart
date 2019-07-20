@@ -120,23 +120,6 @@ class TodoListState extends State<TodoListPage> {
         actions: <Widget>[],
       ),
       body: _getBody(),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "Add",
-        onPressed: () {
-          Navigator.of(context).push(PageRouteBuilder(
-              pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) =>
-                  TaskPage(),
-              transitionsBuilder: (BuildContext context, Animation<double> animation,
-                  Animation<double> secondaryAnimation, Widget child) {
-                return SlideTransition(
-                  position: Tween(begin: const Offset(0.0, 1.0), end: const Offset(0.0, 0.0)).animate(animation),
-                  child: child,
-                );
-              }));
-        },
-        tooltip: 'Add',
-        child: Icon(Icons.add),
-      ),
     );
   }
 

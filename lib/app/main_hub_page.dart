@@ -16,7 +16,7 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
-    List<TabConfig> tabs = mainHubPageTabs.takeWhile((tab) => tab.page != null).toList();
+    final List<TabConfig> tabs = mainHubPageTabs.takeWhile((tab) => tab.page != null).toList();
     return MaterialApp(
       home: Scaffold(
         backgroundColor: backgroundColor,
@@ -25,20 +25,25 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
           children: tabs.map((tab) => tab.page).toList()
         ),
         bottomNavigationBar: BottomNavigationBar(
-          onTap: _onTabChange,
+          onTap: (index) {
+            bool canSwitch = true;
+            final tab = tabs[index];
+            if (tab.onTap != null) {
+              canSwitch = tab.onTap(context, tab);
+            }
+            if (canSwitch) {
+              this.setState(() {
+                _currentIndex = index;
+              });
+            }
+          },
           currentIndex: _currentIndex,
           iconSize: 30,
           type: BottomNavigationBarType.fixed,
-          items: tabs.map((tab) => _buildBottomNavigationBarItem(tab)).toList()
+          items: tabs.map((tab) => _buildBottomNavigationBarItem(tab)).toList(),
         ),
       ),
     );
-  }
-
-  void _onTabChange(int index) {
-    this.setState(() {
-      _currentIndex = index;
-    });
   }
 
   BottomNavigationBarItem _buildBottomNavigationBarItem(TabConfig tab) {
@@ -57,6 +62,8 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
   }
 }
 
+typedef TabOnTapCallback = bool Function(BuildContext context, TabConfig tabConfig);
+
 class TabConfig {
   /// Tab 名字
   final String title;
@@ -66,11 +73,13 @@ class TabConfig {
   final BottomNavigationBarItem navigationBarItem;
   /// tab 对应的页面
   final Widget page;
+  final TabOnTapCallback onTap;
 
   const TabConfig({
     this.title,
     this.imagePath,
     this.navigationBarItem,
     this.page,
+    this.onTap,
   });
 }
