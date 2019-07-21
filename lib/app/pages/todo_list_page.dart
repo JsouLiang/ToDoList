@@ -8,7 +8,6 @@ import 'package:todo_list/app/data/data_base.dart';
 import 'package:todo_list/app/data/task_list_page_model.dart';
 import 'package:todo_list/app/data/todo_task.dart';
 import 'package:todo_list/app/pages/login_page.dart';
-import 'package:todo_list/app/pages/task_page.dart';
 import 'package:todo_list/app/utils/date_time.dart';
 
 class TodoListPage extends StatefulWidget {
