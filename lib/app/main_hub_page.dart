@@ -16,7 +16,7 @@ class MainHubPageState extends State<MainHubPage> with SingleTickerProviderState
 
   @override
   Widget build(BuildContext context) {
-    final List<TabConfig> tabs = mainHubPageTabs.takeWhile((tab) => tab.page != null).toList();
+    final List<TabConfig> tabs = mainHubPageTabs.where((tab) => tab.page != null).toList();
     return MaterialApp(
       home: Scaffold(
         backgroundColor: backgroundColor,
