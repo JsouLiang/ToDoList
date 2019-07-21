@@ -1,4 +1,5 @@
 import 'package:todo_list/app/data/json.dart';
+import 'package:todo_list/app/data/task_status.dart';
 import 'package:todo_list/app/utils/utils.dart';
 import 'package:uuid/uuid.dart';
 
@@ -67,6 +68,17 @@ class TodoTask extends JSONEncodable {
     if (toTime == null) {
       toTime = fromTime;
     }
+  }
+
+  TaskStatus get status {
+    if (finished) {
+      return TaskStatus.finished;
+    }
+    if (toTime == null || toTime.millisecondsSinceEpoch < DateTime.now().millisecondsSinceEpoch) {
+      // handle
+      return TaskStatus.handling;
+    }
+    return TaskStatus.delay;
   }
 
   static Uuid _uuid = Uuid();

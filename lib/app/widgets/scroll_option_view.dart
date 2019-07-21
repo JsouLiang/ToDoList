@@ -57,12 +57,7 @@ class _ScrollOptionViewState extends State<ScrollOptionView> {
     return AnimatedList(
       scrollDirection: Axis.horizontal,
       initialItemCount: options.length,
-      itemBuilder: (context, index, animation) {
-        if (index < 0 || index >= options.length) {
-          return null;
-        }
-        return _buildRow(context, options[index], index);
-      }
+      itemBuilder: (context, index, animation) => _buildRow(context, options[index], index),
     );
   }
 
@@ -74,7 +69,7 @@ class _ScrollOptionViewState extends State<ScrollOptionView> {
       } else {
         content = Container(
           alignment: Alignment.center,
-          padding: const EdgeInsets.fromLTRB(30, 10, 30, 10),
+          padding: const EdgeInsets.fromLTRB(30, 5, 30, 5),
           margin: const EdgeInsets.all(10),
           decoration: BoxDecoration(
             border: Border.all(color: Color(0xffebebec)),
